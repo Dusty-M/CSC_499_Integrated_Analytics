@@ -19,11 +19,13 @@ void CSVParser::getData() {
 	std::ifstream file {_filename};
 	std::vector<std::string> parsed_line{};
 	std::string raw_line{};
-	getline(file, raw_line);
-	boost::split(parsed_line, raw_line, boost::is_any_of(","));
-	std::cout << "resulting strings:" << std::endl;
-	for(auto word : parsed_line) {
-		std::cout << "[" << word << "] ";
+	std::vector<std::string> raw_lines{};
+	while(getline(file, raw_line)){
+//		boost::split(parsed_line, raw_line, boost::is_any_of(","));
+		raw_lines.push_back(raw_line);
 	}
-	std::cout << std::endl;
+	std::cout << "resulting strings:" << std::endl;
+	for(auto line : raw_lines) {
+		std::cout << line << std::endl;
+	}
 }
