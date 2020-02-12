@@ -1,6 +1,6 @@
 #include "myLib.hpp"
 
-CSVParser::CSVParser(const std::string& filename, char delim) : 
+CSVParser::CSVParser(const std::string& filename, char const delim) : 
 	_delim {delim}, _filename {filename} {}
 
 void CSVParser::getData() {

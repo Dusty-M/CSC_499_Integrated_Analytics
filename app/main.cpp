@@ -1,8 +1,8 @@
 #include "myLib.hpp"
 #include <iostream>
 
-int main() {
-	CSVParser t1{"census_2000_sample_places_sample_dimensions.csv", ','};
+int main( int argc, char **argv ) {
+	CSVParser t1{ argv[ 1 ], ','};
 	t1.getData();
 	return 0;
 }
