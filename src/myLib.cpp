@@ -1,4 +1,8 @@
 #include "myLib.hpp"
+#include <iostream>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
+
 
 CSVParser::CSVParser(const std::string& filename, char const delim) : 
 	_delim {delim}, _filename {filename} {}

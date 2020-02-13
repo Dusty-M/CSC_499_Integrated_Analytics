@@ -1,8 +1,16 @@
+// Mylib.hpp
+
 #include <vector>
 #include <string>
-#include <boost/algorithm/string.hpp>
-#include <iostream>
-#include <fstream>
+//#include <boost/algorithm/string.hpp>
+//#include <iostream>
+//#include <fstream>
+
+template <class T>
+struct ColumnData {
+	std::string _header;
+	std::vector<T> _data;
+};
 
 class CSVParser {
 public:
