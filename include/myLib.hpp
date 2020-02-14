@@ -6,17 +6,17 @@
 //#include <iostream>
 //#include <fstream>
 
-template <class T>
+//template <class T>
 struct ColumnData {
-	std::string _header;
-	std::vector<T> _data;
+	std::string header;
+	unsigned long long data;
 };
 
 class CSVParser {
 public:
 	CSVParser(const std::string& filename, char delim);
 	~CSVParser() {}
-	void getData();
+	ColumnData getData(std::string target_header);
 private:
 	std::vector<std::vector<std::string>> rows;
 	char _delim;
