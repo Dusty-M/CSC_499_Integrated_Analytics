@@ -18,7 +18,7 @@ public:
 	~CSVParser() {}
 	ColumnData getData(std::string target_header);
 private:
-	std::vector<std::vector<std::string>> rows;
+	std::vector<std::vector<std::string>> _rows;
 	char _delim;
 	std::string _filename;
 };

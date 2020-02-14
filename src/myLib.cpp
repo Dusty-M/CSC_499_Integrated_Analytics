@@ -1,3 +1,5 @@
+// myLib.cpp
+
 #include "myLib.hpp"
 #include <iostream>
 #include <fstream>
@@ -9,16 +11,20 @@ CSVParser::CSVParser(const std::string& filename, char const delim) :
 
 ColumnData CSVParser::getData(std::string target_header) {
 	std::ifstream file {_filename};
-	std::vector<std::string> parsed_line{};
 	std::string raw_line{};
 	std::vector<std::string> parsed_row{};
-	std::vector<std::string> raw_lines{};
 
-	// Headers are found in the 2nd row, so getline is called twice
+	// First row contains non-unique column header names
 	getline(file, raw_line);
-	getline(file, raw_line);
-
 	boost::split(parsed_row, raw_line, boost::is_any_of(std::string{1, _delim}));
+	_rows.push_back(parsed_row);
+	parsed_row.clear();
+
+	// Second row contains unique column header indices, this is what is
+	// currently being used to identify target columns
+	getline(file, raw_line);
+	boost::split(parsed_row, raw_line, boost::is_any_of(std::string{1, _delim}));
+	_rows.push_back(parsed_row);
 	uint index {0};
 	bool index_found {false};
 	for(auto word : parsed_row) {
@@ -33,17 +39,30 @@ ColumnData CSVParser::getData(std::string target_header) {
 			<< "program closing..." << std::endl;
 		throw std::runtime_error("Target header not found");
 	} 
-	// ************** Temporary workaround: there is a quote in a data field ******
-	// To deal with it for now, I'm just adding 1 to index, this has to be addressed
-	// The tactic: split only on commas not between double quotes
-	++index;
 
-	// At this stage, a simple aggregation is be done:
-	// A simple total sum
+	parsed_row.clear(); // remove headers from previous operations
 	unsigned long long sum = 0;
 	while(getline(file, raw_line)){
-		boost::split(parsed_row, raw_line, boost::is_any_of(std::string{1, _delim}));
+
+		// Reference for the following code, dealing with delimiters inside quotes:
+		// https://stackoverflow.com/questions/35639083/c-csv-line-with-commas-and-strings-within-double-quotes/35639947
+		const char *row_ptr = raw_line.c_str();
+		bool in_quotes {false};
+		const char *start = row_ptr;
+		for(const char *cur_char = start; *cur_char; ++cur_char) {
+			if(*cur_char == '"') {
+				in_quotes = !in_quotes;
+			} else if (*cur_char == _delim && !in_quotes) {
+				parsed_row.push_back(std::string(start, cur_char - start)); // add word to list
+				start = cur_char + 1; // set start to beginning of next word
+			}
+		}
+		parsed_row.push_back(std::string(start)); // push last word, trailing final delim
+
+		// raw line has been completely parsed at delim 
 		sum += std::stoull(parsed_row.at(index));
+		_rows.push_back(parsed_row);
+		parsed_row.clear();
 	}
 	ColumnData cd;
 	cd.header = target_header;
