@@ -5,6 +5,14 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
+std::ostream &operator<<(std::ostream &os, const ColumnData &cd) {
+	os << cd.header << ": " << cd.data;
+	return os;
+}
+
+bool ColumnData::operator==(ColumnData &cd) {
+	return(header == cd.header && data == cd.data);
+}
 
 CSVParser::CSVParser(const std::string& filename, char const delim) : 
 	_delim {delim}, _filename {filename} {}

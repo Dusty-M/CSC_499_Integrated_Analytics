@@ -25,6 +25,20 @@ int main( int argc, char **argv ) {
 		return 2;
 	}
 
-	std::cout << "sum of " << cd.header << ": " << cd.data << std::endl;
+
+	// demonstrating function of << operator on ColumnData
+	std::cout << "sum of " << cd << std::endl;
+	
+	// Demonstrating == operator on ColumnData
+	ColumnData t1_cd;
+	t1_cd.header = (argv[2]);
+	t1_cd.data = 3199912;
+
+	std::cout << "Test 1: " ;
+	if(t1_cd == cd) {
+		std::cout << "PASSED" << std::endl;
+	} else {
+		std::cout << "FAILED" << std::endl;
+	}
 	return 0;
 }
