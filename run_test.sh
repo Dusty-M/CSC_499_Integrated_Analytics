@@ -1,5 +1,5 @@
-rm bin/test_prog
+rm bin/CSVParser_tester
 cmake -H. -Bbin 
 cmake --build bin 
-bin/test_prog census_2000_sample_places_sample_dimensions.csv SE_T001_001
+bin/CSVParser_tester census_2000_sample_places_sample_dimensions.csv SE_T001_001 1 2
 
