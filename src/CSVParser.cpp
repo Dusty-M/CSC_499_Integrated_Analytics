@@ -14,8 +14,7 @@ ColumnData<T>::ColumnData() :
 	data_projected {0},
 	num_segments {0},
 	cur_segment {0},
-	segment_indices {std::vector<uint32_t>{}}
-{std::cout << "In ColumnData constructor" << std::endl;}
+	segment_indices {std::vector<uint32_t>{}}{}
 template struct ColumnData<uint64_t>;
 
 template <typename T>
@@ -41,6 +40,10 @@ template std::ostream &operator<<(std::ostream &os, const ColumnData<uint64_t> &
 template <typename T>
 bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
 	return(	header == cd.header && 
+			first_data_row_index == cd.first_data_row_index &&
+			header_row_index == cd.header_row_index &&
+			header_col_index == cd.header_col_index &&
+			num_rows == cd.num_rows &&
 			data_actual == cd.data_actual &&
 			data_projected == cd.data_projected &&
 			num_segments == cd.num_segments &&
@@ -127,24 +130,6 @@ void CSVParser::getData(
 		const std::string &target_header, 
 		const uint64_t header_row_index,
 		const uint64_t first_data_row_index) const {
-/*
-//	uint32_t index {0};
-	cd.header_col_index = 0;
-	bool index_found {false};
-	for(auto word : _rows.at(header_row_index)) {
-		if(word == target_header) {
-			index_found = true;
-			break;
-		}
-		++cd.header_col_index;
-	}
-	if(!index_found) {
-		std::cout << "Error: target header not found.  "
-			<< "program closing..." << std::endl;
-		throw std::runtime_error("Target header not found");
-	}
-	// Setup complete.  
-*/
 	uint64_t sum {0};
 	for(uint64_t cur_row {first_data_row_index}; cur_row < _rows.size(); ++cur_row) {
 
@@ -169,24 +154,6 @@ void CSVParser::getDataSegment(
 		const uint32_t num_segments,
 		const uint32_t cur_segment)
 {
-/*
-	cd.header_col_index = 0;
-	bool index_found {false};
-	for(auto word : _rows.at(header_row_index)) {
-		if(word == target_header) {
-			index_found = true;
-			break;
-		}
-		++cd.header_col_index;
-	}
-	if(!index_found) {
-		std::cout << "Error: target header not found.  "
-			<< "program closing..." << std::endl;
-		throw std::runtime_error("Target header not found");
-	}
-	// setup complete
-*/
-	std::cout << "in getDataSegment" << std::endl;
 	// work out segment indices
 	cd.num_rows = _rows.size() - first_data_row_index;
 	for(uint32_t seg {0}; seg < num_segments; ++seg) {

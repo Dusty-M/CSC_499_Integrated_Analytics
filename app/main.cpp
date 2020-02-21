@@ -3,7 +3,7 @@
 
 #include "CSVParser.hpp"
 #include <iostream>
-
+#include <unistd.h> // usleep
 void usage() {
 	std::cout << "****************************************************" << std::endl;
 	std::cout << "Error: too few args.  Proper usage:\n"
@@ -53,7 +53,6 @@ int main( int argc, char **argv ) {
 		std::cout << "FAILED" << std::endl;
 	}
 
-	// TODO: put call to getDataSegment() in try/catch block
 	// test getDataSegment()
 	ColumnData<uint64_t> cd_s0;
 	cd_s0.num_segments = 5;
@@ -80,20 +79,58 @@ int main( int argc, char **argv ) {
 	cd_s4.cur_segment = 4;
 	t1.preprocess(cd_s4, header, header_row_index, first_data_row_index);
 
-
+	std::cout << "progressive display:\n" << std::endl;
+	constexpr int usecs {2000000}; // microseconds
+	std::string proj_result;
+	uint64_t sum {0};
+	uint32_t total_segs {5};
+	uint32_t current_seg {1};
 
 	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s0, 5, 0);
+	auto fraction = (float)(cd_s0.data_actual * total_segs) / current_seg;
+
+	std::cout << "s0 data: " << cd_s0.data_actual << " fraction: " << fraction << std::endl;
+	sum += cd_s0.data_actual;
+	proj_result = std::to_string((sum * total_segs) / current_seg++);
+	proj_result.insert(0, 15 - proj_result.length(), ' ');
+	std::cout << '\r' << proj_result << std::flush;
+	usleep(usecs); // sleep for 1 sec
+
 	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s1, 5, 1);
+	sum += cd_s1.data_actual;
+	proj_result = std::to_string(sum * total_segs / current_seg++);
+	proj_result.insert(0, 15 - proj_result.length(), ' ');
+	std::cout << '\r' << proj_result << std::flush;
+	usleep(usecs); // sleep for 1 sec
+
 	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s2, 5, 2);
+	sum += cd_s2.data_actual;
+	proj_result = std::to_string(sum * total_segs / current_seg++);
+	proj_result.insert(0, 15 - proj_result.length(), ' ');
+	std::cout << '\r' << proj_result << std::flush;
+	usleep(usecs); // sleep for 1 sec
+
 	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s3, 5, 3);
+	sum += cd_s3.data_actual;
+	proj_result = std::to_string(sum * total_segs / current_seg++);
+	proj_result.insert(0, 15 - proj_result.length(), ' ');
+	std::cout << '\r' << proj_result << std::flush;
+	usleep(usecs); // sleep for 1 sec
+
 	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s4, 5, 4);
+	sum += cd_s4.data_actual;
+	proj_result = std::to_string(sum * total_segs / current_seg);
+	proj_result.insert(0, 15 - proj_result.length(), ' ');
+	std::cout << '\r' << proj_result << std::flush;
+	usleep(usecs); // sleep for 1 sec
 
+/*
 	std::cout << "cd_s0: " << cd_s0 << std::endl;
-	std::cout << "cd_s1: " << cd_s1 << std::endl;
-	std::cout << "cd_s2: " << cd_s2 << std::endl;
-	std::cout << "cd_s3: " << cd_s3 << std::endl;
-	std::cout << "cd_s4: " << cd_s4 << std::endl;
-
+	std::cout << "\ncd_s1: " << cd_s1 << std::endl;
+	std::cout << "\ncd_s2: " << cd_s2 << std::endl;
+	std::cout << "\ncd_s3: " << cd_s3 << std::endl;
+	std::cout << "\ncd_s4: " << cd_s4 << std::endl;
+	std::cout << std::endl;
 	auto sum = 
 		cd_s0.data_actual +
 		cd_s1.data_actual +
@@ -101,6 +138,7 @@ int main( int argc, char **argv ) {
 		cd_s3.data_actual +
 		cd_s4.data_actual;
 
-		std::cout << "final result: " << sum << std::endl;
+*/
+		std::cout << "\nfinal result: " << sum << " cur_seg: " << current_seg << std::endl;
 	return 0;
 }
