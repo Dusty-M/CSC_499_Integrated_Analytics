@@ -22,15 +22,15 @@ int main( int argc, char **argv ) {
 	// store arguments in readable vars
 	std::string 	filename {argv[1]};
 	std::string 	header	 {argv[2]};
-	uint64_t header_index {std::stoull(argv[3])};
+	uint64_t header_row_index {std::stoull(argv[3])};
 	uint64_t  first_data_row_index {std::stoull(argv[4])};
 	constexpr unsigned char DELIM {','};
 
 	CSVParser t1{ filename, DELIM};
 	ColumnData<uint64_t> results;
 	try {
-		results = t1.getData<uint64_t> (header, header_index, first_data_row_index);
-
+		t1.preprocess(results, header, 1, 2);
+		t1.getData<uint64_t> (results, header, header_row_index, first_data_row_index);
 	}
 	catch (std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
@@ -56,23 +56,37 @@ int main( int argc, char **argv ) {
 	// TODO: put call to getDataSegment() in try/catch block
 	// test getDataSegment()
 	ColumnData<uint64_t> cd_s0;
-	cd_s0.header = header;
 	cd_s0.num_segments = 5;
 	cd_s0.cur_segment = 0;
-	ColumnData<uint64_t> cd_s1 {cd_s0};
-	cd_s1.cur_segment = 1;
-	ColumnData<uint64_t> cd_s2 {cd_s0};
-	cd_s2.cur_segment = 2;
-	ColumnData<uint64_t> cd_s3 {cd_s0};
-	cd_s3.cur_segment = 3;
-	ColumnData<uint64_t> cd_s4 {cd_s0};
-	cd_s4.cur_segment = 4;
+	t1.preprocess(cd_s0, header, header_row_index, first_data_row_index);
 
-	t1.getDataSegment(header, header_index, first_data_row_index, cd_s0, 5, 0);
-	t1.getDataSegment(header, header_index, first_data_row_index, cd_s1, 5, 1);
-	t1.getDataSegment(header, header_index, first_data_row_index, cd_s2, 5, 2);
-	t1.getDataSegment(header, header_index, first_data_row_index, cd_s3, 5, 3);
-	t1.getDataSegment(header, header_index, first_data_row_index, cd_s4, 5, 4);
+	ColumnData<uint64_t> cd_s1;
+	cd_s1.num_segments = 5;
+	cd_s1.cur_segment = 1;
+	t1.preprocess(cd_s1, header, header_row_index, first_data_row_index);
+
+	ColumnData<uint64_t> cd_s2;
+	cd_s2.num_segments = 5;
+	cd_s2.cur_segment = 2;
+	t1.preprocess(cd_s2, header, header_row_index, first_data_row_index);
+
+	ColumnData<uint64_t> cd_s3;
+	cd_s3.num_segments = 5;
+	cd_s3.cur_segment = 3;
+	t1.preprocess(cd_s3, header, header_row_index, first_data_row_index);
+
+	ColumnData<uint64_t> cd_s4;
+	cd_s4.num_segments = 5;
+	cd_s4.cur_segment = 4;
+	t1.preprocess(cd_s4, header, header_row_index, first_data_row_index);
+
+
+
+	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s0, 5, 0);
+	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s1, 5, 1);
+	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s2, 5, 2);
+	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s3, 5, 3);
+	t1.getDataSegment(header, header_row_index, first_data_row_index, cd_s4, 5, 4);
 
 	std::cout << "cd_s0: " << cd_s0 << std::endl;
 	std::cout << "cd_s1: " << cd_s1 << std::endl;

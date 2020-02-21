@@ -8,7 +8,7 @@
 template <typename T>
 ColumnData<T>::ColumnData() :
 	header {""},
-	header_index {0},
+	header_col_index {0},
 	num_rows {0},
 	data_actual {0},
 	data_projected {0},
@@ -17,12 +17,13 @@ ColumnData<T>::ColumnData() :
 	segment_indices {std::vector<uint32_t>{}}
 {std::cout << "In ColumnData constructor" << std::endl;}
 template struct ColumnData<uint64_t>;
-//template struct ColumnData<double>;
 
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
 	os << "header: " << cd.header << 
-		"\nheader_index: " << cd.header_index <<
+		"\nfirst_data_row_index: " << cd.first_data_row_index <<
+		"\nheader_row_index: " << cd.header_row_index <<
+		"\nheader_col_index: " << cd.header_col_index <<
 		"\nnum_rows: " << cd.num_rows <<
 		"\ndata_actual: " << cd.data_actual <<
 		"\ndata_projected: " << cd.data_projected <<
@@ -35,7 +36,6 @@ std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
 	std::cout << "]" << std::flush;
 	return os;
 }
-
 template std::ostream &operator<<(std::ostream &os, const ColumnData<uint64_t> &cd);
 
 template <typename T>
@@ -47,7 +47,6 @@ bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
 			cur_segment == cd.cur_segment &&
 			segment_indices == cd.segment_indices);
 }
-
 template bool ColumnData<uint64_t>::operator==(const ColumnData<uint64_t> &cd) const;
 
 
@@ -59,6 +58,9 @@ CSVParser::CSVParser(const std::string& filename, const char delim) :
 
 void CSVParser::readData() {
 	std::ifstream file {_filename};
+	if(file.fail()) {
+		throw std::runtime_error("Filename does not exist");
+	}
 	std::string raw_line{};
 	std::vector<std::string> parsed_row{};
 	while(getline(file, raw_line)){
@@ -83,22 +85,58 @@ void CSVParser::readData() {
 	}
 }
 
+// CSVParser::preprocess() ensures that target_header exists, records the column
+// target_header is found, and creates segment_indices
+template <typename T>
+void CSVParser::preprocess(
+		ColumnData<T> &cd, 
+		const std::string &target_header,
+		const uint32_t header_row_index,
+		const uint32_t first_data_row_index) const {
+	cd.header_col_index = 0;
+	bool index_found {false};
+	for(auto word : _rows.at(header_row_index)) {
+		if(word == target_header) {
+			index_found = true;
+			// indicates cd.header_col_index is set correctly
+			break;
+		}
+		++cd.header_col_index;
+	}
+	if(!index_found) {
+		throw std::runtime_error("Target header not found");
+	}
+	cd.header = target_header;
+	cd.first_data_row_index = first_data_row_index;
+	cd.header_row_index = header_row_index;
+	cd.num_rows = _rows.size() - first_data_row_index;
+}
+template void CSVParser::preprocess(
+		ColumnData<uint64_t> &cd, 
+		const std::string &target_header,
+		const uint32_t header_row_index,
+		const uint32_t first_data_row_index) const;
+
+
 // getData() will do the complete aggregation in one session
 // In contrast, getDataSegment() is used to
 // aggregate just one segment of the data
 template <typename T>
-ColumnData<T> CSVParser::getData(
+void CSVParser::getData(
+		ColumnData<T> &cd,
 		const std::string &target_header, 
 		const uint64_t header_row_index,
-		const uint64_t first_data_row_index) {
-	uint32_t index {0};
+		const uint64_t first_data_row_index) const {
+/*
+//	uint32_t index {0};
+	cd.header_col_index = 0;
 	bool index_found {false};
 	for(auto word : _rows.at(header_row_index)) {
 		if(word == target_header) {
 			index_found = true;
 			break;
 		}
-		++index;
+		++cd.header_col_index;
 	}
 	if(!index_found) {
 		std::cout << "Error: target header not found.  "
@@ -106,22 +144,21 @@ ColumnData<T> CSVParser::getData(
 		throw std::runtime_error("Target header not found");
 	}
 	// Setup complete.  
+*/
 	uint64_t sum {0};
 	for(uint64_t cur_row {first_data_row_index}; cur_row < _rows.size(); ++cur_row) {
 
 		// NOTE: This line requires that the data being aggregated is an integral type
-		sum += std::stoull(_rows.at(cur_row).at(index));
+		sum += std::stoull(_rows.at(cur_row).at(cd.header_col_index));
 	}
-	ColumnData<T> result;
-	result.data_actual = sum;
-	result.header = target_header;
-	return result;
+	cd.data_actual = sum;
+	cd.data_projected = sum;
 }
-
-template ColumnData<uint64_t> CSVParser::getData(
+template void CSVParser::getData(
+		ColumnData<uint64_t> &cd,
 		const std::string &target_header,
 		const uint64_t header_row_index,
-		const uint64_t first_data_row_index);
+		const uint64_t first_data_row_index) const;
 
 template <typename T>
 void CSVParser::getDataSegment(
@@ -132,14 +169,15 @@ void CSVParser::getDataSegment(
 		const uint32_t num_segments,
 		const uint32_t cur_segment)
 {
-	cd.header_index = 0;
+/*
+	cd.header_col_index = 0;
 	bool index_found {false};
 	for(auto word : _rows.at(header_row_index)) {
 		if(word == target_header) {
 			index_found = true;
 			break;
 		}
-		++cd.header_index;
+		++cd.header_col_index;
 	}
 	if(!index_found) {
 		std::cout << "Error: target header not found.  "
@@ -147,7 +185,7 @@ void CSVParser::getDataSegment(
 		throw std::runtime_error("Target header not found");
 	}
 	// setup complete
-
+*/
 	std::cout << "in getDataSegment" << std::endl;
 	// work out segment indices
 	cd.num_rows = _rows.size() - first_data_row_index;
@@ -163,10 +201,9 @@ void CSVParser::getDataSegment(
 		end_index = cd.segment_indices.at(cd.cur_segment + 1) - 1;
 	}
 	for(uint32_t cur_row {cd.segment_indices.at(cur_segment)}; cur_row <= end_index; ++cur_row) {
-		cd.data_actual += stoull(_rows.at(cur_row).at(cd.header_index));
+		cd.data_actual += stoull(_rows.at(cur_row).at(cd.header_col_index));
 	}
 }
-
 template void CSVParser::getDataSegment(
 		const std::string &target_header, 
 		const uint32_t header_row_index,

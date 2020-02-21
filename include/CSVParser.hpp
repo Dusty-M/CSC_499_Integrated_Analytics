@@ -15,7 +15,9 @@ struct ColumnData {
 	ColumnData<T>(); // constructor
 
 	std::string header;
-	uint32_t header_index;
+	uint32_t first_data_row_index;
+	uint32_t header_row_index;
+	uint32_t header_col_index;
 	uint32_t num_rows; // indicates total number of data values
 	T data_actual;
 	T data_projected; // guess based on partial data
@@ -41,10 +43,18 @@ public:
 	bool operator==(CSVParser csvp);
 
 	template <typename T>
-	ColumnData<T> getData(	
+	void preprocess(
+	   ColumnData<T> &cd, 
+        const std::string &target_header,
+        const uint32_t header_row_index,
+        const uint32_t first_data_row_index) const;
+
+	template <typename T>
+	void getData(	
+		ColumnData<T> &cd,
 		const std::string &target_header, 
 		const uint64_t header_index, 
-		const uint64_t first_data_row_index);
+		const uint64_t first_data_row_index) const;
 
 	template <typename T>
 	void getDataSegment(

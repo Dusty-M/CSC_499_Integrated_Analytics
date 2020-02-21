@@ -5,3 +5,4 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories("include")
 add_executable(CSVParser_tester app/main.cpp src/CSVParser.cpp)
+add_executable(unit_tests app/unit_tests.cpp src/CSVParser.cpp)
