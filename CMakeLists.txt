@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
-project(cpp_tools LANGUAGES CXX)
+project(analytics LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories("include")
-add_executable(test_prog app/main.cpp src/myLib.cpp)
+add_executable(CSVParser_tester app/main.cpp src/CSVParser.cpp)
+add_executable(unit_tests app/unit_tests.cpp src/CSVParser.cpp)

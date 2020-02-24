@@ -2,11 +2,10 @@
 # Integrated Progressive Analytics
 
 ## Status: 
-- setting up file/folder structures, integrating cmake
-- begining basic data ingestion on CSV files
+- Basic data ingestion complete (Simple summation accross single column)
+- Summary provided in a simple format in the form of a ColumnData struct
 
 ## TODO:
-- Choose a basic type of aggregation and a particular subset of data
-- Process said data
-- Provide summary of results
-- Modify the process to be done progressively, and to update user with summary approximations while data is being processed
+- Template ColumnData struct
+- Separate getData from initial reading of data
+- Alter progression to be progressive, providing approximations of results that increase in accuracy over time.
