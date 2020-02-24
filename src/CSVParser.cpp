@@ -5,16 +5,6 @@
 #include <fstream>
 #include <unistd.h>
 
-template <typename T>
-ColumnData<T>::ColumnData() :
-	header {""},
-	header_col_index {0},
-	num_rows {0},
-	data_actual {0},
-	data_projected {0},
-	num_segments {0},
-	cur_segment {0},
-	segment_indices {std::vector<uint32_t>{}}{}
 template struct ColumnData<uint64_t>;
 
 template <typename T>

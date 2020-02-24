@@ -12,8 +12,6 @@
 // based on the amount of data found in the CSVParser
 template <typename T>
 struct ColumnData {
-	ColumnData<T>(); // constructor
-
 	std::string header;
 	uint32_t first_data_row_index;
 	uint32_t header_row_index;
