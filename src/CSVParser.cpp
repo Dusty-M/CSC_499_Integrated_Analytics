@@ -88,18 +88,73 @@ void CSVParser::readData() {
 	}
 }
 
+// CSVParser::makeSegments() is used to create a vector of ColumnData structs
+// It is expected that the user calls this function to obtain the vector of ColumnData
+// structs, then iterates through each vector calling CSVParser::getDataSegment.
+template <typename T>
+std::vector<ColumnData<T>> CSVParser::makeSegments(
+		const std::string &target_header, 
+		const uint32_t header_row_index, 
+		const uint32_t first_data_row_index, 
+		const uint32_t num_segments) const 
+{
+	std::vector<ColumnData<T>> results;
+	for(uint32_t cur_seg {0}; cur_seg < num_segments; ++cur_seg) {
+		ColumnData<T> cur_cd{};
+		cur_cd.num_segments = num_segments;
+		cur_cd.cur_segment = cur_seg;
+		cur_cd.header = target_header;
+		cur_cd.first_data_row_index = first_data_row_index;
+		cur_cd.header_row_index = header_row_index;
+		results.push_back(cur_cd);
+	}
+	// Work out indices for all segments
+	std::vector<uint32_t> segment_indices{};
+	uint32_t num_rows = _rows.size() - first_data_row_index;
+	for(uint32_t seg {0}; seg < num_segments; ++seg) {
+		uint32_t first_index_of_seg = (seg * num_rows)/num_segments + first_data_row_index;
+		segment_indices.push_back(first_index_of_seg);
+	}
+
+	// Find header_col_index
+	uint32_t header_col_index {0};
+	bool index_found {false};
+	for(auto word : _rows.at(header_row_index)) {
+		if(word == target_header) {
+			index_found = true;
+			// indicates header_col_index is set correctly
+			break;
+		}
+		++header_col_index;
+	}
+	if(!index_found) {
+		throw std::runtime_error("Target header not found");
+	}
+
+	// now set segment_indices and num_rows for all ColumnData objects in results
+	for(auto &cur_cd : results) {
+		cur_cd.segment_indices = segment_indices;
+		cur_cd.num_rows = num_rows;
+		cur_cd.header_col_index = header_col_index;
+	}
+
+	return results;
+}
+template std::vector<ColumnData<uint64_t>> CSVParser::makeSegments(
+		const std::string &target_header, 
+		const uint32_t header_row_index, 
+		const uint32_t first_data_row_index, 
+		const uint32_t num_segments) const;
+
 // CSVParser::preprocess() ensures that target_header exists, records the column
 // target_header is found, and creates segment_indices
 template <typename T>
 void CSVParser::preprocess(
-		ColumnData<T> &cd, 
-		const std::string &target_header,
-		const uint32_t header_row_index,
-		const uint32_t first_data_row_index) const {
+		ColumnData<T> &cd) const {
 	cd.header_col_index = 0;
 	bool index_found {false};
-	for(auto word : _rows.at(header_row_index)) {
-		if(word == target_header) {
+	for(auto word : _rows.at(cd.header_row_index)) {
+		if(word == cd.header) {
 			index_found = true;
 			// indicates cd.header_col_index is set correctly
 			break;
@@ -109,16 +164,9 @@ void CSVParser::preprocess(
 	if(!index_found) {
 		throw std::runtime_error("Target header not found");
 	}
-	cd.header = target_header;
-	cd.first_data_row_index = first_data_row_index;
-	cd.header_row_index = header_row_index;
-	cd.num_rows = _rows.size() - first_data_row_index;
 }
 template void CSVParser::preprocess(
-		ColumnData<uint64_t> &cd, 
-		const std::string &target_header,
-		const uint32_t header_row_index,
-		const uint32_t first_data_row_index) const;
+		ColumnData<uint64_t> &cd) const;
 
 
 // getData() will do the complete aggregation in one session
@@ -147,34 +195,18 @@ template void CSVParser::getData(
 
 template <typename T>
 void CSVParser::getDataSegment(
-		const std::string &target_header, 
-		const uint32_t header_row_index,
-		const uint32_t first_data_row_index,
-		ColumnData<T> &cd,
-		const uint32_t num_segments,
-		const uint32_t cur_segment)
+		ColumnData<T> &cd)
 {
-	// work out segment indices
-	cd.num_rows = _rows.size() - first_data_row_index;
-	for(uint32_t seg {0}; seg < num_segments; ++seg) {
-		auto first_index_of_seg = (seg * cd.num_rows)/num_segments + first_data_row_index;
-		cd.segment_indices.push_back(first_index_of_seg);
-	}
 	uint32_t end_index;
-	if(cd.cur_segment == num_segments - 1) {
+	if(cd.cur_segment == cd.num_segments - 1) {
 		// last segment, so end_index = last row index
 		end_index = _rows.size() - 1;
 	} else {
 		end_index = cd.segment_indices.at(cd.cur_segment + 1) - 1;
 	}
-	for(uint32_t cur_row {cd.segment_indices.at(cur_segment)}; cur_row <= end_index; ++cur_row) {
+	for(uint32_t cur_row {cd.segment_indices.at(cd.cur_segment)}; cur_row <= end_index; ++cur_row) {
 		cd.data_actual += stoull(_rows.at(cur_row).at(cd.header_col_index));
 	}
 }
 template void CSVParser::getDataSegment(
-		const std::string &target_header, 
-		const uint32_t header_row_index,
-		const uint32_t first_data_row_index,
-		ColumnData<uint64_t> &cd,
-		const uint32_t num_segments,
-		const uint32_t cur_segment);
+		ColumnData<uint64_t> &cd);

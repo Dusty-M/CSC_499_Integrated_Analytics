@@ -43,11 +43,18 @@ public:
 	bool operator==(CSVParser csvp);
 
 	template <typename T>
+	std::vector<ColumnData<T>> makeSegments(
+			const std::string &target_header,
+			const uint32_t header_row_index,
+			const uint32_t first_data_row_index,
+			const uint32_t num_segments) const;
+
+	template <typename T>
 	void preprocess(
-	   ColumnData<T> &cd, 
-        const std::string &target_header,
-        const uint32_t header_row_index,
-        const uint32_t first_data_row_index) const;
+	   ColumnData<T> &cd) const;
+//        const std::string &target_header,
+ //       const uint32_t header_row_index,
+  //      const uint32_t first_data_row_index) const;
 
 	template <typename T>
 	void getData(	
@@ -58,12 +65,12 @@ public:
 
 	template <typename T>
 	void getDataSegment(
-       const std::string &target_header,
-        const uint32_t header_row_index,
-        const uint32_t first_data_row_index,
-        ColumnData<T> &cd,
-        const uint32_t num_segments,
-        const uint32_t cur_segment);
+//		const std::string &target_header,
+//		const uint32_t header_row_index,
+//		const uint32_t first_data_row_index,
+		ColumnData<T> &cd);
+//		const uint32_t num_segments,
+//		const uint32_t cur_segment);
 private:
 	void readData();
 	std::vector<std::vector<std::string>> _rows;
