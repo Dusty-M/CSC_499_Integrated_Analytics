@@ -17,11 +17,12 @@ struct ColumnData {
 	uint32_t header_row_index;
 	uint32_t header_col_index;
 	uint32_t num_rows; // indicates total number of data values
-	T data_actual;
-	T data_projected; // guess based on partial data
+	T data_summary_actual;
+	T data_summary_projected; // guess based on partial data
+	std::vector<T> data_raw;
 	uint32_t num_segments;
 	uint32_t cur_segment;
-
+	
 	// segment_indices stores the index holding the first
 	// element of data in the ith segment.  
 	// ie the first element of the 4th segment can be found

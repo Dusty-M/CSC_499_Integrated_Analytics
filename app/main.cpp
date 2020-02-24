@@ -48,7 +48,7 @@ int main( int argc, char **argv ) {
 		}
 		t1->getDataSegment(result_cds.at(0));
 
-		std::cout << "result of one-hit analysis: " << result_cds.at(0).data_actual << '\n' << std::endl;
+		std::cout << "result of one-hit analysis: " << result_cds.at(0).data_summary_actual << '\n' << std::endl;
 	}
 
 	// Set up values to perform a progressive analysis
@@ -71,7 +71,7 @@ int main( int argc, char **argv ) {
 		for(auto cur_res : result_cds) {
 			t1->getDataSegment(cur_res);
 			std::cout << cur_res << '\n' << std::endl;
-			sum += cur_res.data_actual;
+			sum += cur_res.data_summary_actual;
 		}
 		std::cout << "Final sum: " << sum << std::endl;
 	}

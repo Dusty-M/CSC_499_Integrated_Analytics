@@ -14,8 +14,8 @@ std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
 		"\nheader_row_index: " << cd.header_row_index <<
 		"\nheader_col_index: " << cd.header_col_index <<
 		"\nnum_rows: " << cd.num_rows <<
-		"\ndata_actual: " << cd.data_actual <<
-		"\ndata_projected: " << cd.data_projected <<
+		"\ndata_summary_actual: " << cd.data_summary_actual <<
+		"\ndata_summary_projected: " << cd.data_summary_projected <<
 		"\nnum_segments: " << cd.num_segments <<
 		"\ncur_segment: " << cd.cur_segment <<
 		"\nsegment_indices: [ ";
@@ -34,8 +34,8 @@ bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
 			header_row_index == cd.header_row_index &&
 			header_col_index == cd.header_col_index &&
 			num_rows == cd.num_rows &&
-			data_actual == cd.data_actual &&
-			data_projected == cd.data_projected &&
+			data_summary_actual == cd.data_summary_actual &&
+			data_summary_projected == cd.data_summary_projected &&
 			num_segments == cd.num_segments &&
 			cur_segment == cd.cur_segment &&
 			segment_indices == cd.segment_indices);
@@ -126,6 +126,7 @@ std::vector<ColumnData<T>> CSVParser::makeSegments(
 		cur_cd.segment_indices = segment_indices;
 		cur_cd.num_rows = num_rows;
 		cur_cd.header_col_index = header_col_index;
+		preprocess(cur_cd);
 	}
 
 	return results;
@@ -139,8 +140,7 @@ template std::vector<ColumnData<uint64_t>> CSVParser::makeSegments(
 // CSVParser::preprocess() ensures that target_header exists, records the column
 // target_header is found, and creates segment_indices
 template <typename T>
-void CSVParser::preprocess(
-		ColumnData<T> &cd) const {
+void CSVParser::preprocess( ColumnData<T> &cd ) const {
 	cd.header_col_index = 0;
 	bool index_found {false};
 	for(auto word : _rows.at(cd.header_row_index)) {
@@ -153,6 +153,17 @@ void CSVParser::preprocess(
 	}
 	if(!index_found) {
 		throw std::runtime_error("Target header not found");
+	}
+
+	uint32_t end_index;
+	if(cd.cur_segment == cd.num_segments - 1) {
+		// last segment, so end_index = last row index
+		end_index = _rows.size() - 1;
+	} else {
+		end_index = cd.segment_indices.at(cd.cur_segment + 1) - 1;
+	}
+	for(uint64_t cur_row {cd.segment_indices.at(cd.cur_segment)}; cur_row <= end_index; ++cur_row) {
+		cd.data_raw.push_back(std::stoull(_rows.at(cur_row).at(cd.header_col_index)));
 	}
 }
 template void CSVParser::preprocess(
@@ -170,32 +181,24 @@ void CSVParser::getData(
 		const uint64_t first_data_row_index) const {
 	uint64_t sum {0};
 	for(uint64_t cur_row {first_data_row_index}; cur_row < _rows.size(); ++cur_row) {
-
-		// NOTE: This line requires that the data being aggregated is an integral type
 		sum += std::stoull(_rows.at(cur_row).at(cd.header_col_index));
 	}
-	cd.data_actual = sum;
-	cd.data_projected = sum;
+	cd.data_summary_actual = sum;
+	cd.data_summary_projected = sum;
 }
+// Currently depricated, will remove soon...
 template void CSVParser::getData(
 		ColumnData<uint64_t> &cd,
 		const std::string &target_header,
 		const uint64_t header_row_index,
 		const uint64_t first_data_row_index) const;
 
+
 template <typename T>
-void CSVParser::getDataSegment(
-		ColumnData<T> &cd)
+void CSVParser::getDataSegment(	ColumnData<T> &cd )
 {
-	uint32_t end_index;
-	if(cd.cur_segment == cd.num_segments - 1) {
-		// last segment, so end_index = last row index
-		end_index = _rows.size() - 1;
-	} else {
-		end_index = cd.segment_indices.at(cd.cur_segment + 1) - 1;
-	}
-	for(uint32_t cur_row {cd.segment_indices.at(cd.cur_segment)}; cur_row <= end_index; ++cur_row) {
-		cd.data_actual += stoull(_rows.at(cur_row).at(cd.header_col_index));
+	for(const auto &val : cd.data_raw) {
+		cd.data_summary_actual += val;
 	}
 }
 template void CSVParser::getDataSegment(
