@@ -70,7 +70,7 @@ int main( int argc, char **argv ) {
 			std::cout << e.what() << std::endl;
 			return 3;
 		}
-		t1->getDataSegment(result_cds.at(0));
+		t1->runAnalysisSegment(result_cds.at(0));
 
 		std::cout << "result of one-hit analysis: " << result_cds.at(0).data_summary_actual << '\n' << std::endl;
 	}
@@ -93,7 +93,7 @@ int main( int argc, char **argv ) {
 
 		int_data_type sum{};
 		for(auto &cur_res : result_cds) {
-			t1->getDataSegment(cur_res);
+			t1->runAnalysisSegment(cur_res);
 			std::cout << cur_res << '\n' << std::endl;
 			sum += cur_res.data_summary_actual;
 		}

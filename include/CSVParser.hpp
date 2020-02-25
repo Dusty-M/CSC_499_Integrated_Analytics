@@ -10,7 +10,7 @@ using int_data_type = uint64_t;
 using index_type = uint32_t; 
 
 // Each ColumnData struct is associated with a particular
-// CSVParser object.  Upon the first call to getData() with a
+// CSVParser object.  Upon the first call to runAnalysis() with a
 // particular ColumnData, the segment_indices are populated
 // based on the amount of data found in the CSVParser
 template <typename T>
@@ -56,15 +56,15 @@ public:
 	   ColumnData<T> &cd) const;
 
 	template <typename T>
-	void getData(	
+	void runAnalysis(	
 		ColumnData<T> &cd,
 		const std::string &target_header, 
 		const index_type header_index, 
 		const index_type first_data_row_index) const;
 
 	template <typename T>
-	void getDataSegment(
-		ColumnData<T> &cd);
+	void runAnalysisSegment(
+		ColumnData<T> &cd) const;
 
 private:
 	void readData();

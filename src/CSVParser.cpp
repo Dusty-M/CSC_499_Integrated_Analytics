@@ -82,7 +82,7 @@ void CSVParser::readData() {
 
 // CSVParser::makeSegments() is used to create a vector of ColumnData structs
 // It is expected that the user calls this function to obtain the vector of ColumnData
-// structs, then iterates through each vector calling CSVParser::getDataSegment.
+// structs, then iterates through each vector calling CSVParser::runAnalysisSegment.
 template <typename T>
 std::vector<ColumnData<T>> CSVParser::makeSegments(
 		const std::string &target_header, 
@@ -169,11 +169,11 @@ template void CSVParser::preprocess(
 		ColumnData<int_data_type> &cd) const;
 
 
-// getData() will do the complete aggregation in one session
-// In contrast, getDataSegment() is used to
+// runAnalysis() will do the complete aggregation in one session
+// In contrast, runAnalysisSegment() is used to
 // aggregate just one segment of the data
 template <typename T>
-void CSVParser::getData(
+void CSVParser::runAnalysis(
 		ColumnData<T> &cd,
 		const std::string &target_header, 
 		const index_type header_row_index,
@@ -186,7 +186,7 @@ void CSVParser::getData(
 	cd.data_summary_projected = sum;
 }
 // Currently depricated, will remove soon...
-template void CSVParser::getData(
+template void CSVParser::runAnalysis(
 		ColumnData<int_data_type> &cd,
 		const std::string &target_header,
 		const index_type header_row_index,
@@ -194,11 +194,11 @@ template void CSVParser::getData(
 
 
 template <typename T>
-void CSVParser::getDataSegment(	ColumnData<T> &cd )
+void CSVParser::runAnalysisSegment(	ColumnData<T> &cd ) const
 {
 	for(const auto &val : cd.data_raw) {
 		cd.data_summary_actual += val;
 	}
 }
-template void CSVParser::getDataSegment(
-		ColumnData<int_data_type> &cd);
+template void CSVParser::runAnalysisSegment(
+		ColumnData<int_data_type> &cd) const;
