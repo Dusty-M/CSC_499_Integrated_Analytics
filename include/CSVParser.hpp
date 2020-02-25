@@ -8,7 +8,7 @@
 
 using int_data_type = uint64_t; 
 using index_type = uint32_t; 
-
+class CSVParser;
 // Each ColumnData struct is associated with a particular
 // CSVParser object.  Upon the first call to runAnalysis() with a
 // particular ColumnData, the segment_indices are populated
@@ -37,6 +37,7 @@ struct ColumnData {
 
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd);
+CSVParser makeCSVParser(const std::string& filename, const char delim);
 
 class CSVParser {
 public:
@@ -52,8 +53,7 @@ public:
 			const index_type num_segments) const;
 
 	template <typename T>
-	void preprocess(
-	   ColumnData<T> &cd) const;
+	void preprocess(ColumnData<T> &cd) const;
 
 	template <typename T>
 	void runAnalysis(	
@@ -66,8 +66,8 @@ public:
 	void runAnalysisSegment(
 		ColumnData<T> &cd) const;
 
+	CSVParser &readData();
 private:
-	void readData();
 	std::vector<std::vector<std::string>> _rows;
 	char _delim;
 	std::string _filename;

@@ -52,7 +52,7 @@ int main( int argc, char **argv ) {
 	constexpr unsigned char DELIM {','};
 	std::shared_ptr<CSVParser> t1;
 	try {
-		 t1 = std::make_shared<CSVParser>( filename, DELIM);
+		 t1 = std::make_shared<CSVParser>(makeCSVParser(filename, DELIM));
 	} catch(std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		return 2;

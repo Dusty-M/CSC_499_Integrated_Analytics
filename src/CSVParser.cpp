@@ -44,14 +44,14 @@ bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
 template bool ColumnData<int_data_type>::operator==(
 	const ColumnData<int_data_type> &cd) const;
 
+CSVParser makeCSVParser(const std::string &filename, const char delim) {
+	return CSVParser{filename, delim}.readData();
+}
 
 CSVParser::CSVParser(const std::string& filename, const char delim) : 
-	_delim {delim}, _filename {filename} 
-	{
-		readData();
-	}
+	_delim {delim}, _filename {filename} {}
 
-void CSVParser::readData() {
+CSVParser &CSVParser::readData() {
 	std::ifstream file {_filename};
 	if(file.fail()) {
 		throw std::runtime_error("Filename does not exist");
@@ -78,6 +78,7 @@ void CSVParser::readData() {
 		_rows.push_back(parsed_row);
 		parsed_row.clear();
 	}
+	return *this;
 }
 
 // CSVParser::makeSegments() is used to create a vector of ColumnData structs
