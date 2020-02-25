@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
+#include <bits/stdc++.h>
 
 template struct ColumnData<uint64_t>;
 
@@ -107,18 +108,15 @@ std::vector<ColumnData<T>> CSVParser::makeSegments(
 	}
 
 	// Find header_col_index
-	uint32_t header_col_index {0};
-	bool index_found {false};
-	for(auto word : _rows.at(header_row_index)) {
-		if(word == target_header) {
-			index_found = true;
-			// indicates header_col_index is set correctly
-			break;
+	uint32_t header_col_index;
+	{
+		auto header_col {_rows.at(header_row_index)};
+		auto header {std::find(header_col.begin(), header_col.end(), target_header)};
+		if(header == header_col.end()) {
+			throw std::runtime_error("Target header not found");
+		} else {
+			header_col_index = std::distance(header_col.begin(), header);	
 		}
-		++header_col_index;
-	}
-	if(!index_found) {
-		throw std::runtime_error("Target header not found");
 	}
 
 	// now set segment_indices and num_rows for all ColumnData objects in results
