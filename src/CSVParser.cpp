@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <bits/stdc++.h>
 
-template struct ColumnData<uint64_t>;
+template struct ColumnData<int_data_type>;
 
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
@@ -26,7 +26,7 @@ std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
 	std::cout << "]" << std::flush;
 	return os;
 }
-template std::ostream &operator<<(std::ostream &os, const ColumnData<uint64_t> &cd);
+template std::ostream &operator<<(std::ostream &os, const ColumnData<int_data_type> &cd);
 
 template <typename T>
 bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
@@ -41,7 +41,8 @@ bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
 			cur_segment == cd.cur_segment &&
 			segment_indices == cd.segment_indices);
 }
-template bool ColumnData<uint64_t>::operator==(const ColumnData<uint64_t> &cd) const;
+template bool ColumnData<int_data_type>::operator==(
+	const ColumnData<int_data_type> &cd) const;
 
 
 CSVParser::CSVParser(const std::string& filename, const char delim) : 
@@ -85,12 +86,12 @@ void CSVParser::readData() {
 template <typename T>
 std::vector<ColumnData<T>> CSVParser::makeSegments(
 		const std::string &target_header, 
-		const uint32_t header_row_index, 
-		const uint32_t first_data_row_index, 
-		const uint32_t num_segments) const 
+		const index_type header_row_index, 
+		const index_type first_data_row_index, 
+		const index_type num_segments) const 
 {
 	std::vector<ColumnData<T>> results;
-	for(uint32_t cur_seg {0}; cur_seg < num_segments; ++cur_seg) {
+	for(index_type cur_seg {0}; cur_seg < num_segments; ++cur_seg) {
 		ColumnData<T> cur_cd{};
 		cur_cd.num_segments = num_segments;
 		cur_cd.cur_segment = cur_seg;
@@ -100,15 +101,15 @@ std::vector<ColumnData<T>> CSVParser::makeSegments(
 		results.push_back(cur_cd);
 	}
 	// Work out indices for all segments
-	std::vector<uint32_t> segment_indices{};
-	uint32_t num_rows = _rows.size() - first_data_row_index;
-	for(uint32_t seg {0}; seg < num_segments; ++seg) {
-		uint32_t first_index_of_seg = (seg * num_rows)/num_segments + first_data_row_index;
+	std::vector<index_type> segment_indices{};
+	index_type num_rows = _rows.size() - first_data_row_index;
+	for(index_type seg {0}; seg < num_segments; ++seg) {
+		index_type first_index_of_seg = (seg * num_rows)/num_segments + first_data_row_index;
 		segment_indices.push_back(first_index_of_seg);
 	}
 
 	// Find header_col_index
-	uint32_t header_col_index;
+	index_type header_col_index;
 	{
 		auto header_col {_rows.at(header_row_index)};
 		auto header {std::find(header_col.begin(), header_col.end(), target_header)};
@@ -129,11 +130,11 @@ std::vector<ColumnData<T>> CSVParser::makeSegments(
 
 	return results;
 }
-template std::vector<ColumnData<uint64_t>> CSVParser::makeSegments(
+template std::vector<ColumnData<int_data_type>> CSVParser::makeSegments(
 		const std::string &target_header, 
-		const uint32_t header_row_index, 
-		const uint32_t first_data_row_index, 
-		const uint32_t num_segments) const;
+		const index_type header_row_index, 
+		const index_type first_data_row_index, 
+		const index_type num_segments) const;
 
 // CSVParser::preprocess() ensures that target_header exists, records the column
 // target_header is found, and creates segment_indices
@@ -153,19 +154,19 @@ void CSVParser::preprocess( ColumnData<T> &cd ) const {
 		throw std::runtime_error("Target header not found");
 	}
 
-	uint32_t end_index;
+	index_type end_index;
 	if(cd.cur_segment == cd.num_segments - 1) {
 		// last segment, so end_index = last row index
 		end_index = _rows.size() - 1;
 	} else {
 		end_index = cd.segment_indices.at(cd.cur_segment + 1) - 1;
 	}
-	for(uint64_t cur_row {cd.segment_indices.at(cd.cur_segment)}; cur_row <= end_index; ++cur_row) {
+	for(index_type cur_row {cd.segment_indices.at(cd.cur_segment)}; cur_row <= end_index; ++cur_row) {
 		cd.data_raw.push_back(std::stoull(_rows.at(cur_row).at(cd.header_col_index)));
 	}
 }
 template void CSVParser::preprocess(
-		ColumnData<uint64_t> &cd) const;
+		ColumnData<int_data_type> &cd) const;
 
 
 // getData() will do the complete aggregation in one session
@@ -175,10 +176,10 @@ template <typename T>
 void CSVParser::getData(
 		ColumnData<T> &cd,
 		const std::string &target_header, 
-		const uint64_t header_row_index,
-		const uint64_t first_data_row_index) const {
-	uint64_t sum {0};
-	for(uint64_t cur_row {first_data_row_index}; cur_row < _rows.size(); ++cur_row) {
+		const index_type header_row_index,
+		const index_type first_data_row_index) const {
+	int_data_type sum {0};
+	for(index_type cur_row {first_data_row_index}; cur_row < _rows.size(); ++cur_row) {
 		sum += std::stoull(_rows.at(cur_row).at(cd.header_col_index));
 	}
 	cd.data_summary_actual = sum;
@@ -186,10 +187,10 @@ void CSVParser::getData(
 }
 // Currently depricated, will remove soon...
 template void CSVParser::getData(
-		ColumnData<uint64_t> &cd,
+		ColumnData<int_data_type> &cd,
 		const std::string &target_header,
-		const uint64_t header_row_index,
-		const uint64_t first_data_row_index) const;
+		const index_type header_row_index,
+		const index_type first_data_row_index) const;
 
 
 template <typename T>
@@ -200,4 +201,4 @@ void CSVParser::getDataSegment(	ColumnData<T> &cd )
 	}
 }
 template void CSVParser::getDataSegment(
-		ColumnData<uint64_t> &cd);
+		ColumnData<int_data_type> &cd);
