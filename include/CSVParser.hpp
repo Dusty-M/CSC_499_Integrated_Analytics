@@ -32,8 +32,10 @@ struct ColumnData {
 	// NOTE: i goes from 0 to (num_segments - 1)
 	// in _rows.at(segment_indices[2]
 	std::vector<index_type> segment_indices;
-	bool operator==(const ColumnData<T> &cd) const;
 };
+
+template <typename T>
+bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2);
 
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd);
@@ -42,6 +44,7 @@ CSVParser makeCSVParser(const std::string& filename, const char delim);
 class CSVParser {
 public:
 	CSVParser(const std::string& filename, const char delim);
+	CSVParser &readData();
 	~CSVParser() {}
 	bool operator==(CSVParser csvp);
 
@@ -66,7 +69,6 @@ public:
 	void runAnalysisSegment(
 		ColumnData<T> &cd) const;
 
-	CSVParser &readData();
 private:
 	std::vector<std::vector<std::string>> _rows;
 	char _delim;
