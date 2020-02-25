@@ -29,20 +29,21 @@ std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
 template std::ostream &operator<<(std::ostream &os, const ColumnData<int_data_type> &cd);
 
 template <typename T>
-bool ColumnData<T>::operator==(const ColumnData<T> &cd) const {
-	return(	header == cd.header && 
-			first_data_row_index == cd.first_data_row_index &&
-			header_row_index == cd.header_row_index &&
-			header_col_index == cd.header_col_index &&
-			num_rows == cd.num_rows &&
-			data_summary_actual == cd.data_summary_actual &&
-			data_summary_projected == cd.data_summary_projected &&
-			num_segments == cd.num_segments &&
-			cur_segment == cd.cur_segment &&
-			segment_indices == cd.segment_indices);
+bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2){
+	return(	cd1.header == cd2.header && 
+			cd1.first_data_row_index == cd2.first_data_row_index &&
+			cd1.header_row_index == cd2.header_row_index &&
+			cd1.header_col_index == cd2.header_col_index &&
+			cd1.num_rows == cd2.num_rows &&
+			cd1.data_summary_actual == cd2.data_summary_actual &&
+			cd1.data_summary_projected == cd2.data_summary_projected &&
+			cd1.num_segments == cd2.num_segments &&
+			cd1.cur_segment == cd2.cur_segment &&
+			cd1.segment_indices == cd2.segment_indices);
 }
-template bool ColumnData<int_data_type>::operator==(
-	const ColumnData<int_data_type> &cd) const;
+template bool operator==(
+	const ColumnData<int_data_type> &cd1, 
+	const ColumnData<int_data_type> &cd2);
 
 CSVParser makeCSVParser(const std::string &filename, const char delim) {
 	return CSVParser{filename, delim}.readData();
