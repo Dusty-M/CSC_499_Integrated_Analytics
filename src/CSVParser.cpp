@@ -53,7 +53,7 @@ CSVParser makeCSVParser(const std::string &filename, const char delim) {
 CSVParser::CSVParser(const std::string& filename, const char delim) : 
 	_delim {delim}, _filename {filename} {}
 
-CSVParser &readData(CSVParser &csvp) {
+CSVParser readData(CSVParser csvp) {
 	std::ifstream file {csvp._filename};
 	if(file.fail()) {
 		throw std::runtime_error("Filename does not exist");
