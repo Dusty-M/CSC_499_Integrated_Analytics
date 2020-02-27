@@ -53,7 +53,7 @@ int main( int argc, char **argv ) {
 	std::shared_ptr<CSVParser> t1;
 	try {
 		 t1 = std::make_shared<CSVParser>(makeCSVParser(filename, DELIM));
-	} catch(std::runtime_error &e) {
+	} catch(const std::runtime_error &e) {
 		std::cout << e.what() << std::endl;
 		return 2;
 	}
