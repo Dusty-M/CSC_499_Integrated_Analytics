@@ -44,7 +44,7 @@ CSVParser makeCSVParser(const std::string& filename, const char delim);
 class CSVParser {
 public:
 	CSVParser(const std::string& filename, const char delim);
-	CSVParser &readData();
+	friend CSVParser &readData(CSVParser &csvp);
 	~CSVParser() {}
 	bool operator==(CSVParser csvp);
 
@@ -68,7 +68,6 @@ public:
 	template <typename T>
 	void runAnalysisSegment(
 		ColumnData<T> &cd) const;
-
 private:
 	std::vector<std::vector<std::string>> _rows;
 	char _delim;

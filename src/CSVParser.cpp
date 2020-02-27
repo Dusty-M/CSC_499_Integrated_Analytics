@@ -46,19 +46,21 @@ template bool operator==(
 	const ColumnData<int_data_type> &cd2);
 
 CSVParser makeCSVParser(const std::string &filename, const char delim) {
-	return CSVParser{filename, delim}.readData();
+//	return CSVParser{filename, delim}.readData();
+	return readData(CSVParser{filename, delim});
 }
 
 CSVParser::CSVParser(const std::string& filename, const char delim) : 
 	_delim {delim}, _filename {filename} {}
 
-CSVParser &CSVParser::readData() {
-	std::ifstream file {_filename};
+CSVParser readData(CSVParser csvp) {
+	std::ifstream file {csvp._filename};
 	if(file.fail()) {
 		throw std::runtime_error("Filename does not exist");
 	}
 	std::string raw_line{};
 	std::vector<std::string> parsed_row{};
+	std::vector<std::vector<std::string>> rows{};
 	while(getline(file, raw_line)){
 
 		// Reference for the following code, dealing with delimiters inside quotes:
@@ -69,17 +71,17 @@ CSVParser &CSVParser::readData() {
 		for(const char *cur_char = start; *cur_char; ++cur_char) {
 			if(*cur_char == '"') {
 				in_quotes = !in_quotes;
-			} else if (*cur_char == _delim && !in_quotes) {
+			} else if (*cur_char == csvp._delim && !in_quotes) {
 				parsed_row.push_back(std::string(start, cur_char - start)); // add word to list
 				start = cur_char + 1; // set start to beginning of next word
 			}
 		}
 		parsed_row.push_back(std::string(start)); // push last word, trailing final delim
 
-		_rows.push_back(parsed_row);
+		csvp._rows.push_back(parsed_row);
 		parsed_row.clear();
 	}
-	return *this;
+	return csvp;
 }
 
 // CSVParser::makeSegments() is used to create a vector of ColumnData structs
