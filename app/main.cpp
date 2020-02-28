@@ -2,6 +2,7 @@
 // Used to write exploratory/behavioural tests for CSVParser
 
 #include "CSVParser.hpp"
+#include "LeastSquaresFit.hpp"
 #include <iostream>
 #include <memory> // shared pointers
 #include <unistd.h> // usleep
@@ -99,5 +100,26 @@ int main( int argc, char **argv ) {
 		}
 		std::cout << "Final sum: " << sum << std::endl;
 	}
+
+	// testing LeastSquaresFit class
+	std::string X_header {"SE_T003_001"};
+	std::string Y_header {"SE_T013_001"};
+	
+
+	auto Xs = t1->makeSegments<float_data_type>(X_header, header_row_index, first_data_row_index, 1);
+	auto Ys = t1->makeSegments<float_data_type>(Y_header, header_row_index, first_data_row_index, 1);
+	std::cout << "Xs size: " << Xs.size() << std::endl;
+	std::cout << "Ys size: " << Ys.size() << std::endl;
+	std::cout << "X_bar: " << calc_avg(Xs.at(0)) << std::endl;
+	std::cout << "Y_bar: " << calc_avg(Ys.at(0)) << std::endl;
+
+
+	LeastSquaresFit<float_data_type, float_data_type> lsf = makeLeastSquaresFit<float_data_type, float_data_type>(Xs.at(0), Ys.at(0));
+	lsf.calcSquares();
+	std::cout << "SS_xx: " << lsf._SS_xx << std::endl;
+	std::cout << "y_bar: " << lsf._y_bar << std::endl;
+	std::cout << "SS_xy: " << lsf._SS_xy << std::endl;
+	std::cout << "(a,b): " << "(" << lsf._a << ", " << lsf._b << ")" << std::endl;
+
 	return 0;
 }

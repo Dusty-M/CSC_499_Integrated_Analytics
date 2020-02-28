@@ -1,10 +1,12 @@
 // CSVParser.cpp
 
+//#include "LeastSquaresFit.hpp"
 #include "CSVParser.hpp"
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
 #include <bits/stdc++.h>
+#include <sstream>
 
 template struct ColumnData<int_data_type>;
 
@@ -27,6 +29,7 @@ std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd) {
 	return os;
 }
 template std::ostream &operator<<(std::ostream &os, const ColumnData<int_data_type> &cd);
+template std::ostream &operator<<(std::ostream &os, const ColumnData<float_data_type> &cd);
 
 template <typename T>
 bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2){
@@ -44,9 +47,25 @@ bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2){
 template bool operator==(
 	const ColumnData<int_data_type> &cd1, 
 	const ColumnData<int_data_type> &cd2);
+template bool operator==(
+	const ColumnData<float_data_type> &cd1, 
+	const ColumnData<float_data_type> &cd2);
+
+template <typename T>
+T calc_avg(ColumnData<T> &cd) {
+	float_data_type avg {0};
+	std::cout << "first element: " << cd.data_raw.at(0) << " last element: " << cd.data_raw.at(cd.data_raw.size() - 1) << std::endl;
+	for(auto const val : cd.data_raw) {
+		avg+= val;
+	}
+	avg /= (float_data_type)cd.data_raw.size();
+	return avg;
+}
+template int_data_type calc_avg(ColumnData<int_data_type> &cd);
+template float_data_type calc_avg(ColumnData<float_data_type> &cd);
+
 
 CSVParser makeCSVParser(const std::string &filename, const char delim) {
-//	return CSVParser{filename, delim}.readData();
 	return readData(CSVParser{filename, delim});
 }
 
@@ -139,6 +158,11 @@ template std::vector<ColumnData<int_data_type>> CSVParser::makeSegments(
 		const index_type header_row_index, 
 		const index_type first_data_row_index, 
 		const index_type num_segments) const;
+template std::vector<ColumnData<float_data_type>> CSVParser::makeSegments(
+		const std::string &target_header, 
+		const index_type header_row_index, 
+		const index_type first_data_row_index, 
+		const index_type num_segments) const;
 
 // CSVParser::preprocess() ensures that target_header exists, records the column
 // target_header is found, and creates segment_indices
@@ -166,11 +190,18 @@ void CSVParser::preprocess( ColumnData<T> &cd ) const {
 		end_index = cd.segment_indices.at(cd.cur_segment + 1) - 1;
 	}
 	for(index_type cur_row {cd.segment_indices.at(cd.cur_segment)}; cur_row <= end_index; ++cur_row) {
-		cd.data_raw.push_back(std::stoull(_rows.at(cur_row).at(cd.header_col_index)));
+		// storing each value into a string stream, because the >> operator
+		// can convert into a variety of numeric types.
+		T val;
+		std::stringstream converter_hack {_rows.at(cur_row).at(cd.header_col_index)};
+		converter_hack >> val;
+		cd.data_raw.push_back(val);
 	}
 }
 template void CSVParser::preprocess(
 		ColumnData<int_data_type> &cd) const;
+template void CSVParser::preprocess(
+		ColumnData<float_data_type> &cd) const;
 
 
 // runAnalysis() will do the complete aggregation in one session
@@ -195,6 +226,11 @@ template void CSVParser::runAnalysis(
 		const std::string &target_header,
 		const index_type header_row_index,
 		const index_type first_data_row_index) const;
+template void CSVParser::runAnalysis(
+		ColumnData<float_data_type> &cd,
+		const std::string &target_header,
+		const index_type header_row_index,
+		const index_type first_data_row_index) const;
 
 
 template <typename T>
@@ -206,3 +242,5 @@ void CSVParser::runAnalysisSegment(	ColumnData<T> &cd ) const
 }
 template void CSVParser::runAnalysisSegment(
 		ColumnData<int_data_type> &cd) const;
+template void CSVParser::runAnalysisSegment(
+		ColumnData<float_data_type> &cd) const;
