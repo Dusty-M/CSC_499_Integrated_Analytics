@@ -37,7 +37,7 @@ struct ColumnData {
 };
 
 template <typename T>
-T calc_avg(ColumnData<T> &cd);
+float_data_type calcAvg(std::vector<ColumnData<T>> &cd_vec);
 
 template <typename T>
 bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2);
@@ -45,29 +45,6 @@ bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2);
 template <typename T>
 std::ostream &operator<<(std::ostream &os, const ColumnData<T> &cd);
 CSVParser makeCSVParser(const std::string& filename, const char delim);
-
-/*********************************
-template <typename X_type, typename Y_type>
-class LeastSquaresFit {
-public:
-	LeastSquaresFit(ColumnData<X_type> X, ColumnData<Y_type> Y);
-	void init();
-private:
-	ColumnData<X_type> _X;
-	ColumnData<Y_type> _Y;
-
-	// Values specific to the least squares fitting calculation
-	// See the following link for a description of variables used:
-	// http://mathworld.wolfram.com/LeastSquaresFitting.html
-	int_data_type 	_x_bar,
-					_y_bar,
-					_s_xx,
-					_s_xy,
-					_a,
-					_b;
-
-};
-*******************************/
 
 class CSVParser {
 public:

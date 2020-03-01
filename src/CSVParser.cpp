@@ -1,6 +1,5 @@
 // CSVParser.cpp
 
-//#include "LeastSquaresFit.hpp"
 #include "CSVParser.hpp"
 #include <iostream>
 #include <fstream>
@@ -52,17 +51,20 @@ template bool operator==(
 	const ColumnData<float_data_type> &cd2);
 
 template <typename T>
-T calc_avg(ColumnData<T> &cd) {
+float_data_type calcAvg(std::vector<ColumnData<T>> &cd_vec) {
 	float_data_type avg {0};
-	std::cout << "first element: " << cd.data_raw.at(0) << " last element: " << cd.data_raw.at(cd.data_raw.size() - 1) << std::endl;
-	for(auto const val : cd.data_raw) {
-		avg+= val;
+	int_data_type n {0};
+	for(auto const &cd : cd_vec) {
+		for(auto const &val : cd.data_raw) {
+			avg+= val;
+		}
+		n += cd.data_raw.size();
 	}
-	avg /= (float_data_type)cd.data_raw.size();
+	avg /= n;
 	return avg;
 }
-template int_data_type calc_avg(ColumnData<int_data_type> &cd);
-template float_data_type calc_avg(ColumnData<float_data_type> &cd);
+template float_data_type calcAvg(std::vector<ColumnData<int_data_type>> &cd);
+template float_data_type calcAvg(std::vector<ColumnData<float_data_type>> &cd);
 
 
 CSVParser makeCSVParser(const std::string &filename, const char delim) {
