@@ -16,6 +16,7 @@ int main( int argc, char **argv ) {
 	index_type header_row_index;
 	index_type  first_data_row_index;
 
+	// ********* start of boost::program_options code ****************
 	namespace po = boost::program_options;
 	po::options_description desc("Options");
 	desc.add_options()
@@ -49,6 +50,7 @@ int main( int argc, char **argv ) {
       std::cerr << desc << std::endl; 
       return 1; 
     } 
+	// ********* end of boost::program_options code ****************
 
 	constexpr unsigned char DELIM {','};
 	std::shared_ptr<CSVParser> t1;
@@ -77,6 +79,8 @@ int main( int argc, char **argv ) {
 	}
 
 	// Set up values to perform a progressive analysis
+	// Note: This only creates ColumnData segments, it
+	// does not perform any calculations
 	{
 		index_type num_segments {5};
 		std::vector<ColumnData<int_data_type>> result_cds;
@@ -101,7 +105,8 @@ int main( int argc, char **argv ) {
 		std::cout << "Final sum: " << sum << std::endl;
 	}
 
-	// testing LeastSquaresFit class
+
+	// Performing a progressive analysis using LeastSquaresFit class
 	std::string X_header {"SE_T003_001"};
 	std::string Y_header {"SE_T013_001"};
 	
@@ -115,11 +120,15 @@ int main( int argc, char **argv ) {
 	std::cout << "\n" << std::endl;
 
 	LeastSquaresFit<float_data_type, float_data_type> lsf = makeLeastSquaresFit<float_data_type, float_data_type>(Xs, Ys);
-	std::cout << lsf << "\n\n" << std::endl;
-	while(lsf.calcNextProjection()) {
-		std::cout << "running calculation" << std::endl;
-	}
-	std::cout << lsf << "\n\n" << std::endl;
 
+	// Display results/projections after each segment is processed
+	std::cout << lsf << "\n\n" << std::endl;
+	constexpr int_data_type usecs {2000000}; // microseconds
+	std::cout << "Displaying projections during progressive analysis:" << std::endl; 
+	while(lsf.calcNextProjection()) {
+		std::cout << '\r' << "a: " << lsf.getProja() << " b: " << lsf.getProjb() << std::flush;
+		usleep(usecs);
+	}
+	std::cout << "\nProgram closing" << std::endl;
 	return 0;
 }

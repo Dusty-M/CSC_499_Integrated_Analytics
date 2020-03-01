@@ -17,13 +17,15 @@ public:
     LeastSquaresFit(std::vector<ColumnData<X_type>> X, std::vector<ColumnData<Y_type>> Y);
     void init();
 	bool calcNextProjection();
+	float_data_type getProja();
+	float_data_type getProjb();
 
+private:
 	// In the cast of a progressive analysis, there will be many segmented
 	// ColumnData structs, therefore _X and _Y are vectors of ColumnData structs.
     std::vector<ColumnData<X_type>> _X;
     std::vector<ColumnData<Y_type>> _Y;
 
-private:
     // Values specific to the least squares fitting calculation
     // See the following link for a description of variables used:
     // http://mathworld.wolfram.com/LeastSquaresFitting.html

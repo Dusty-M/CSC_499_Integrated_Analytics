@@ -67,6 +67,16 @@ template bool LeastSquaresFit<float_data_type, float_data_type>::calcNextProject
 template bool LeastSquaresFit<int_data_type, int_data_type>::calcNextProjection();
 
 template <typename X_type, typename Y_type>
+float_data_type LeastSquaresFit<X_type, Y_type>::getProja(){ return _a; }
+template float_data_type LeastSquaresFit<int_data_type, int_data_type>::getProja();
+template float_data_type LeastSquaresFit<float_data_type, float_data_type>::getProja();
+
+template <typename X_type, typename Y_type>
+float_data_type LeastSquaresFit<X_type, Y_type>::getProjb(){ return _b; }
+template float_data_type LeastSquaresFit<int_data_type, int_data_type>::getProjb();
+template float_data_type LeastSquaresFit<float_data_type, float_data_type>::getProjb();
+
+template <typename X_type, typename Y_type>
 std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type> lsf) {
 	std::cout 	<< "_x_bar: " << lsf._x_bar  << "\n"
 				<< "_y_bar: " << lsf._y_bar << "\n"
