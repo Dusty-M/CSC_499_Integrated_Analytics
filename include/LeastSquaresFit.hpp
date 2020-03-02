@@ -34,8 +34,8 @@ private:
                     _SS_xx,
                     _SS_xy,
                     _a,
-                    _b,
-					_cur_projection;
+                    _b;
+	index_type _count; // indicates how many projections have been made
 };
 
 // Factory function

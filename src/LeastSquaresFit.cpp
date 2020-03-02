@@ -9,8 +9,8 @@ LeastSquaresFit<X_type, Y_type>::LeastSquaresFit(
 		std::vector<ColumnData<X_type>> X, 
 		std::vector<ColumnData<Y_type>> Y): 
     	_x_bar {0}, _y_bar {0}, _X {X}, _Y {Y}, 
-		_SS_xx {0}, _SS_xy {0}, _a {0}, _b {0}, 
-		_cur_projection {0} {} 
+		_SS_xx {0}, _SS_xy {0}, _a {0}, _b {0},
+		_count {0} {} 
 template class LeastSquaresFit<int_data_type, int_data_type>; 
 template class LeastSquaresFit<float_data_type, float_data_type>; 
  
@@ -31,14 +31,14 @@ template LeastSquaresFit<float_data_type, float_data_type> makeLeastSquaresFit(s
 
 template <typename X_type, typename Y_type>
 bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
-	if(_cur_projection == _X.size()) { // indicates no update to projection was made
+	if(_count == _X.size()) { // indicates no update to projection was made
 		return false;
 	}
 	float_data_type cur_SS_xx {0};
 	float_data_type cur_SS_xy {0};
 	
-	const auto &X_cur_seg {_X.at(_cur_projection).data_raw};
-	const auto &Y_cur_seg {_Y.at(_cur_projection).data_raw};
+	const auto &X_cur_seg {_X.at(_count).data_raw};
+	const auto &Y_cur_seg {_Y.at(_count).data_raw};
 
 	// iterate through the appropriate segments of _X and _Y
 	// calculate SS_xx and SS_yy of the new segment
@@ -60,7 +60,7 @@ bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
 	_b = _SS_xy / _SS_xx;
 	_a = _y_bar - _b * _x_bar;
 
-	++_cur_projection;
+	++_count;
 	return true;
 }
 template bool LeastSquaresFit<float_data_type, float_data_type>::calcNextProjection();
@@ -82,7 +82,7 @@ std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type>
 				<< "_y_bar: " << lsf._y_bar << "\n"
 				<< "_a: " << lsf._a << "\n"
 				<< "_b: " << lsf._b << "\n"
-				<< "_cur_projection: " << lsf._cur_projection << std::endl;
+				<< "_count: " << lsf._count << std::endl;
 	return os;
 }
 template std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<int_data_type, int_data_type> lsf);
