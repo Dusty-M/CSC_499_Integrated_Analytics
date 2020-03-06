@@ -3,6 +3,7 @@
 #include "LeastSquaresFit.hpp"
 #include <iostream>
 #include <utility> //std::pair
+#include <numeric> // std::inner_product
 
 template <typename X_type, typename Y_type> 
 LeastSquaresFit<X_type, Y_type>::LeastSquaresFit(X_type X, Y_type Y): 
@@ -36,22 +37,17 @@ bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
 	if(_count == _X.size()) { // indicates no update to projection was made
 		return false;
 	}
-	float_data_type cur_SS_xx {0};
-	float_data_type cur_SS_xy {0};
 	
 	const auto &X_cur_seg {_X.at(_count).data_raw};
 	const auto &Y_cur_seg {_Y.at(_count).data_raw};
 
-	// iterate through the appropriate segments of _X and _Y
-	// calculate SS_xx and SS_yy of the new segment
-	for(index_type i {0}; i < X_cur_seg.size(); ++i) {
-		const auto &x_val {X_cur_seg.at(i)};
-		const auto &y_val {Y_cur_seg.at(i)};
-		cur_SS_xx += x_val * x_val;
-		cur_SS_xy += x_val * y_val;
-	}
-	cur_SS_xx -= (X_cur_seg.size() * _x_bar * _x_bar);
-	cur_SS_xy -= (Y_cur_seg.size() * _x_bar * _y_bar);
+	// use inner product to calculate SS_xx and SS_xy
+	float_data_type init_SS_xx = -(X_cur_seg.size() * _x_bar * _x_bar);
+	float_data_type init_SS_xy = -(Y_cur_seg.size() * _x_bar * _y_bar);
+	float_data_type cur_SS_xx = std::inner_product(X_cur_seg.begin(), X_cur_seg.end(), 
+		X_cur_seg.begin(), init_SS_xx);
+	float_data_type cur_SS_xy = std::inner_product(X_cur_seg.begin(), X_cur_seg.end(), 
+		Y_cur_seg.begin(), init_SS_xy);
 
 	// now add cur_SS_xx and cur_SS_xy to persistent
 	// values, _SS_xx and _SS_xy
