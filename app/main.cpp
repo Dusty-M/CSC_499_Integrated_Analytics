@@ -2,19 +2,25 @@
 // Used to write exploratory/behavioural tests for CSVParser
 
 #include "CSVParser.hpp"
+#include "LeastSquaresFit.hpp"
 #include <iostream>
 #include <memory> // shared pointers
 #include <unistd.h> // usleep
 #include <boost/program_options.hpp>
 
-int main( int argc, char **argv ) {
+void usage() {
+	std::cout << "Example usage:\n"
+		<< "CSVParser_tester --filename census_2000_all_places_sample_dimensions.csv --header SE_T001_001 --header_row_index 1 --first_data_row_index 2\n" << std::endl;
+}
 
+int main( int argc, char **argv ) {
 	// program arg variables
 	std::string 	filename;
 	std::string 	header;
 	index_type header_row_index;
 	index_type  first_data_row_index;
 
+	// ********* start of boost::program_options code ****************
 	namespace po = boost::program_options;
 	po::options_description desc("Options");
 	desc.add_options()
@@ -31,14 +37,19 @@ int main( int argc, char **argv ) {
 	po::variables_map vm;
 	try{
 		po::store(po::parse_command_line(argc, argv, desc), vm);
+		if(argc == 1) {
+			usage();
+			std::cout << desc << std::endl;
+			return 0;
+		}
 
 		if (vm.count("help") )
-      { 
-        std::cout << "Progressive Analytics Application" << std::endl 
-                  << desc << std::endl; 
-        return 0; 
-      } 
- 
+		{ 
+			std::cout << "Progressive Analytics Application" << std::endl 
+					  << desc << std::endl; 
+			return 0; 
+		} 
+	
       po::notify(vm); // throws on error, so do after help in case 
                       // there are any problems 
     } 
@@ -48,6 +59,7 @@ int main( int argc, char **argv ) {
       std::cerr << desc << std::endl; 
       return 1; 
     } 
+	// ********* end of boost::program_options code ****************
 
 	constexpr unsigned char DELIM {','};
 	std::shared_ptr<CSVParser> t1;
@@ -76,6 +88,8 @@ int main( int argc, char **argv ) {
 	}
 
 	// Set up values to perform a progressive analysis
+	// Note: This only creates ColumnData segments, it
+	// does not perform any calculations
 	{
 		index_type num_segments {5};
 		std::vector<ColumnData<int_data_type>> result_cds;
@@ -99,5 +113,33 @@ int main( int argc, char **argv ) {
 		}
 		std::cout << "Final sum: " << sum << std::endl;
 	}
+
+
+	// Performing a progressive analysis using LeastSquaresFit class
+	std::string X_header {"SE_T003_001"};
+	std::string Y_header {"SE_T013_001"};
+	
+
+	auto Xs = t1->makeSegments<float_data_type>(X_header, header_row_index, first_data_row_index, 5);
+	auto Ys = t1->makeSegments<float_data_type>(Y_header, header_row_index, first_data_row_index, 5);
+	std::cout << "Xs size: " << Xs.size() << std::endl;
+	std::cout << "Ys size: " << Ys.size() << std::endl;
+	std::cout << "X_bar: " << calcAvg(Xs) << std::endl;
+	std::cout << "Y_bar: " << calcAvg(Ys) << std::endl;
+	std::cout << "\n" << std::endl;
+
+	using vec_cols_float = std::vector<ColumnData<float_data_type>>;
+	LeastSquaresFit<vec_cols_float, vec_cols_float> lsf = 
+		makeLeastSquaresFit<vec_cols_float, vec_cols_float>(Xs, Ys);
+
+	// Display results/projections after each segment is processed
+	std::cout << lsf << "\n\n" << std::endl;
+	constexpr int_data_type usecs {2000000}; // microseconds
+	std::cout << "Displaying projections during progressive analysis:" << std::endl; 
+	while(lsf.calcNextProjection()) {
+		std::cout << '\r' << "a: " << lsf.getProja() << " b: " << lsf.getProjb() << std::flush;
+		usleep(usecs);
+	}
+	std::cout << "\nProgram closing" << std::endl;
 	return 0;
 }

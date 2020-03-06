@@ -8,6 +8,8 @@
 
 using int_data_type = uint64_t; 
 using index_type = uint32_t; 
+using float_data_type = double;
+
 class CSVParser;
 // Each ColumnData struct is associated with a particular
 // CSVParser object.  Upon the first call to runAnalysis() with a
@@ -35,6 +37,9 @@ struct ColumnData {
 };
 
 template <typename T>
+float_data_type calcAvg(const std::vector<ColumnData<T>> &cd_vec);
+
+template <typename T>
 bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2);
 
 template <typename T>
@@ -44,7 +49,7 @@ CSVParser makeCSVParser(const std::string& filename, const char delim);
 class CSVParser {
 public:
 	CSVParser(const std::string& filename, const char delim);
-	friend CSVParser &readData(CSVParser &csvp);
+	friend CSVParser readData(CSVParser csvp);
 	~CSVParser() {}
 	bool operator==(CSVParser csvp);
 
