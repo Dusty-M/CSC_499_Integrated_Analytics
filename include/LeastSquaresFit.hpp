@@ -8,13 +8,15 @@
 template <typename X_type, typename Y_type>
 class LeastSquaresFit;
 
+// Note: X_type and Y_type are expected to be std::vector<ColumnData<T>>
+// where T is some numeric type such as float, double, unsigned int, etc.
 template <typename X_type, typename Y_type>
 class LeastSquaresFit {
 public:
 	template <typename T1, typename T2>
 	friend std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<T1, T2> lsf);
 
-    LeastSquaresFit(std::vector<ColumnData<X_type>> X, std::vector<ColumnData<Y_type>> Y);
+    LeastSquaresFit(X_type X, Y_type Y);
     void init();
 	bool calcNextProjection();
 	float_data_type getProja();
@@ -23,8 +25,8 @@ public:
 private:
 	// In the cast of a progressive analysis, there will be many segmented
 	// ColumnData structs, therefore _X and _Y are vectors of ColumnData structs.
-    std::vector<ColumnData<X_type>> _X;
-    std::vector<ColumnData<Y_type>> _Y;
+    X_type _X;
+    Y_type _Y;
 
     // Values specific to the least squares fitting calculation
     // See the following link for a description of variables used:
@@ -38,9 +40,9 @@ private:
 	index_type _count; // indicates how many projections have been made
 };
 
-// Factory function
+// Factory function, as above, X_type and Y_type are expected to be
+// of type std::vector<ColumnData<T>> where T is a numeric type
 template <typename X_type, typename Y_type>
-LeastSquaresFit<X_type, Y_type> makeLeastSquaresFit(std::vector<ColumnData<X_type>> X, std::vector<ColumnData<Y_type>> Y);
-
+LeastSquaresFit<X_type, Y_type> makeLeastSquaresFit(X_type X, Y_type Y);
 
 #endif

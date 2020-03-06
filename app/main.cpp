@@ -128,7 +128,9 @@ int main( int argc, char **argv ) {
 	std::cout << "Y_bar: " << calcAvg(Ys) << std::endl;
 	std::cout << "\n" << std::endl;
 
-	LeastSquaresFit<float_data_type, float_data_type> lsf = makeLeastSquaresFit<float_data_type, float_data_type>(Xs, Ys);
+	using vec_cols_float = std::vector<ColumnData<float_data_type>>;
+	LeastSquaresFit<vec_cols_float, vec_cols_float> lsf = 
+		makeLeastSquaresFit<vec_cols_float, vec_cols_float>(Xs, Ys);
 
 	// Display results/projections after each segment is processed
 	std::cout << lsf << "\n\n" << std::endl;

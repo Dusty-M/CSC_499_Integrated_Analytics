@@ -5,14 +5,14 @@
 #include <utility> //std::pair
 
 template <typename X_type, typename Y_type> 
-LeastSquaresFit<X_type, Y_type>::LeastSquaresFit(
-		std::vector<ColumnData<X_type>> X, 
-		std::vector<ColumnData<Y_type>> Y): 
+LeastSquaresFit<X_type, Y_type>::LeastSquaresFit(X_type X, Y_type Y): 
     	_x_bar {0}, _y_bar {0}, _X {X}, _Y {Y}, 
 		_SS_xx {0}, _SS_xy {0}, _a {0}, _b {0},
 		_count {0} {} 
-template class LeastSquaresFit<int_data_type, int_data_type>; 
-template class LeastSquaresFit<float_data_type, float_data_type>; 
+template class LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
+	std::vector<ColumnData<int_data_type>>>; 
+template class LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
+	std::vector<ColumnData<float_data_type>>>; 
  
 template <typename X_type, typename Y_type> 
 void LeastSquaresFit<X_type, Y_type>::init() { 
@@ -22,12 +22,14 @@ void LeastSquaresFit<X_type, Y_type>::init() {
 
 template <typename X_type, typename Y_type> 
 LeastSquaresFit<X_type, Y_type> makeLeastSquaresFit(
-		std::vector<ColumnData<X_type>> X, std::vector<ColumnData<Y_type>> Y) {
+		X_type X, Y_type Y) {
 	LeastSquaresFit<X_type, Y_type> lsf{X, Y};
 	lsf.init();
 	return lsf;
 }
-template LeastSquaresFit<float_data_type, float_data_type> makeLeastSquaresFit(std::vector<ColumnData<float_data_type>> X, std::vector<ColumnData<float_data_type>> Y);
+template LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
+	std::vector<ColumnData<float_data_type>>> 
+	makeLeastSquaresFit(std::vector<ColumnData<float_data_type>> X, std::vector<ColumnData<float_data_type>> Y);
 
 template <typename X_type, typename Y_type>
 bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
@@ -63,18 +65,24 @@ bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
 	++_count;
 	return true;
 }
-template bool LeastSquaresFit<float_data_type, float_data_type>::calcNextProjection();
-template bool LeastSquaresFit<int_data_type, int_data_type>::calcNextProjection();
+template bool LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
+	std::vector<ColumnData<float_data_type>>>::calcNextProjection();
+template bool LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
+	std::vector<ColumnData<int_data_type>>>::calcNextProjection();
 
 template <typename X_type, typename Y_type>
 float_data_type LeastSquaresFit<X_type, Y_type>::getProja(){ return _a; }
-template float_data_type LeastSquaresFit<int_data_type, int_data_type>::getProja();
-template float_data_type LeastSquaresFit<float_data_type, float_data_type>::getProja();
+template float_data_type LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
+	std::vector<ColumnData<int_data_type>>>::getProja();
+template float_data_type LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
+	std::vector<ColumnData<float_data_type>>>::getProja();
 
 template <typename X_type, typename Y_type>
 float_data_type LeastSquaresFit<X_type, Y_type>::getProjb(){ return _b; }
-template float_data_type LeastSquaresFit<int_data_type, int_data_type>::getProjb();
-template float_data_type LeastSquaresFit<float_data_type, float_data_type>::getProjb();
+template float_data_type LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
+	std::vector<ColumnData<int_data_type>>>::getProjb();
+template float_data_type LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
+	std::vector<ColumnData<float_data_type>>>::getProjb();
 
 template <typename X_type, typename Y_type>
 std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type> lsf) {
@@ -85,5 +93,6 @@ std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type>
 				<< "_count: " << lsf._count << std::endl;
 	return os;
 }
-template std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<int_data_type, int_data_type> lsf);
-template std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<float_data_type, float_data_type> lsf);
+template std::ostream &operator<<(std::ostream &os, 
+	const LeastSquaresFit<std::vector<ColumnData<int_data_type>>, std::vector<ColumnData<int_data_type>>> lsf);
+template std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<std::vector<ColumnData<float_data_type>>, std::vector<ColumnData<float_data_type>>> lsf);
