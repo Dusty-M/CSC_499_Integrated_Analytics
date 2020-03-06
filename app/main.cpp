@@ -8,8 +8,12 @@
 #include <unistd.h> // usleep
 #include <boost/program_options.hpp>
 
-int main( int argc, char **argv ) {
+void usage() {
+	std::cout << "Example usage:\n"
+		<< "CSVParser_tester --filename census_2000_all_places_sample_dimensions.csv --header SE_T001_001 --header_row_index 1 --first_data_row_index 2\n" << std::endl;
+}
 
+int main( int argc, char **argv ) {
 	// program arg variables
 	std::string 	filename;
 	std::string 	header;
@@ -33,14 +37,19 @@ int main( int argc, char **argv ) {
 	po::variables_map vm;
 	try{
 		po::store(po::parse_command_line(argc, argv, desc), vm);
+		if(argc == 1) {
+			usage();
+			std::cout << desc << std::endl;
+			return 0;
+		}
 
 		if (vm.count("help") )
-      { 
-        std::cout << "Progressive Analytics Application" << std::endl 
-                  << desc << std::endl; 
-        return 0; 
-      } 
- 
+		{ 
+			std::cout << "Progressive Analytics Application" << std::endl 
+					  << desc << std::endl; 
+			return 0; 
+		} 
+	
       po::notify(vm); // throws on error, so do after help in case 
                       // there are any problems 
     } 

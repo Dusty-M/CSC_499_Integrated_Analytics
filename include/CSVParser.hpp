@@ -37,7 +37,7 @@ struct ColumnData {
 };
 
 template <typename T>
-float_data_type calcAvg(std::vector<ColumnData<T>> &cd_vec);
+float_data_type calcAvg(const std::vector<ColumnData<T>> &cd_vec);
 
 template <typename T>
 bool operator==(const ColumnData<T> &cd1, const ColumnData<T> &cd2);

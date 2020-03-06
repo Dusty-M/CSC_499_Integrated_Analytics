@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <bits/stdc++.h>
 #include <sstream>
+#include <numeric> // std::accumulate
 
 template struct ColumnData<int_data_type>;
 
@@ -51,20 +52,17 @@ template bool operator==(
 	const ColumnData<float_data_type> &cd2);
 
 template <typename T>
-float_data_type calcAvg(std::vector<ColumnData<T>> &cd_vec) {
-	float_data_type avg {0};
+float_data_type calcAvg(const std::vector<ColumnData<T>> &cd_vec) {
+	float_data_type sum {0};
 	int_data_type n {0};
 	for(auto const &cd : cd_vec) {
-		for(auto const &val : cd.data_raw) {
-			avg+= val;
-		}
+		sum += std::accumulate(cd.data_raw.begin(), cd.data_raw.end(), 0.0);
 		n += cd.data_raw.size();
 	}
-	avg /= n;
-	return avg;
+	return sum / n;
 }
-template float_data_type calcAvg(std::vector<ColumnData<int_data_type>> &cd);
-template float_data_type calcAvg(std::vector<ColumnData<float_data_type>> &cd);
+template float_data_type calcAvg(const std::vector<ColumnData<int_data_type>> &cd);
+template float_data_type calcAvg(const std::vector<ColumnData<float_data_type>> &cd);
 
 
 CSVParser makeCSVParser(const std::string &filename, const char delim) {
