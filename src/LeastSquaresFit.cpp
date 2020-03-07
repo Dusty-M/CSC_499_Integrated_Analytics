@@ -5,16 +5,17 @@
 #include <utility> //std::pair
 #include <numeric> // std::inner_product
 
+using vec_col_float = std::vector<ColumnData<float_data_type>>;
+using vec_col_int = std::vector<ColumnData<int_data_type>>;
+
 template <typename X_type, typename Y_type> 
 LeastSquaresFit<X_type, Y_type>::LeastSquaresFit(X_type X, Y_type Y): 
     	_x_bar {0}, _y_bar {0}, _X {X}, _Y {Y}, 
 		_SS_xx {0}, _SS_xy {0}, _a {0}, _b {0},
 		_count {0} {} 
-template class LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
-	std::vector<ColumnData<int_data_type>>>; 
-template class LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
-	std::vector<ColumnData<float_data_type>>>; 
- 
+template class LeastSquaresFit<vec_col_int, vec_col_int>; 
+template class LeastSquaresFit<vec_col_float, vec_col_float>;
+	 
 template <typename X_type, typename Y_type> 
 void LeastSquaresFit<X_type, Y_type>::init() { 
     _x_bar = calcAvg(_X); 
@@ -28,9 +29,8 @@ LeastSquaresFit<X_type, Y_type> makeLeastSquaresFit(
 	lsf.init();
 	return lsf;
 }
-template LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
-	std::vector<ColumnData<float_data_type>>> 
-	makeLeastSquaresFit(std::vector<ColumnData<float_data_type>> X, std::vector<ColumnData<float_data_type>> Y);
+template LeastSquaresFit<vec_col_float, vec_col_float>
+	makeLeastSquaresFit(vec_col_float X, vec_col_float Y);
 
 template <typename X_type, typename Y_type>
 bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
@@ -61,27 +61,21 @@ bool LeastSquaresFit<X_type, Y_type>::calcNextProjection() {
 	++_count;
 	return true;
 }
-template bool LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
-	std::vector<ColumnData<float_data_type>>>::calcNextProjection();
-template bool LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
-	std::vector<ColumnData<int_data_type>>>::calcNextProjection();
+template bool LeastSquaresFit<vec_col_float, vec_col_float>::calcNextProjection();
+template bool LeastSquaresFit<vec_col_int, vec_col_int>::calcNextProjection();
 
 template <typename X_type, typename Y_type>
 float_data_type LeastSquaresFit<X_type, Y_type>::getProja(){ return _a; }
-template float_data_type LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
-	std::vector<ColumnData<int_data_type>>>::getProja();
-template float_data_type LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
-	std::vector<ColumnData<float_data_type>>>::getProja();
+template float_data_type LeastSquaresFit<vec_col_int, vec_col_int>::getProja();
+template float_data_type LeastSquaresFit<vec_col_float, vec_col_float>::getProja();
 
 template <typename X_type, typename Y_type>
 float_data_type LeastSquaresFit<X_type, Y_type>::getProjb(){ return _b; }
-template float_data_type LeastSquaresFit<std::vector<ColumnData<int_data_type>>, 
-	std::vector<ColumnData<int_data_type>>>::getProjb();
-template float_data_type LeastSquaresFit<std::vector<ColumnData<float_data_type>>, 
-	std::vector<ColumnData<float_data_type>>>::getProjb();
+template float_data_type LeastSquaresFit<vec_col_int, vec_col_int>::getProjb();
+template float_data_type LeastSquaresFit<vec_col_float, vec_col_float>::getProjb();
 
 template <typename X_type, typename Y_type>
-std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type> lsf) {
+std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type> &lsf) {
 	std::cout 	<< "_x_bar: " << lsf._x_bar  << "\n"
 				<< "_y_bar: " << lsf._y_bar << "\n"
 				<< "_a: " << lsf._a << "\n"
@@ -90,5 +84,6 @@ std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<X_type, Y_type>
 	return os;
 }
 template std::ostream &operator<<(std::ostream &os, 
-	const LeastSquaresFit<std::vector<ColumnData<int_data_type>>, std::vector<ColumnData<int_data_type>>> lsf);
-template std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<std::vector<ColumnData<float_data_type>>, std::vector<ColumnData<float_data_type>>> lsf);
+	const LeastSquaresFit<vec_col_int, vec_col_int> &lsf);
+template std::ostream &operator<<(std::ostream &os, 
+	const LeastSquaresFit<vec_col_float, vec_col_float> &lsf);

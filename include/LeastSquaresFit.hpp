@@ -14,7 +14,7 @@ template <typename X_type, typename Y_type>
 class LeastSquaresFit {
 public:
 	template <typename T1, typename T2>
-	friend std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<T1, T2> lsf);
+	friend std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<T1, T2> &lsf);
 
     LeastSquaresFit(X_type X, Y_type Y);
     void init();
