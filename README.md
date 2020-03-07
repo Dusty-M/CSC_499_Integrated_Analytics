@@ -2,8 +2,8 @@
 # Integrated Progressive Analytics
 
 ## Sample Usage:
-`$ CSVParser\_tester --filename census\_2000\_all\_places\_sample\_dimensions.csv`  
-`--header SE\_T001\_001 --header\_row\_index 1 --first\_data\_row\_index 2`
+`$ CSVParser_tester --filename census_2000_all_places_sample_dimensions.csv`  
+`--header SE_T001_001 --header_row_index 1 --first_data_row_index 2`
 ## Status: 
 - Basic data ingestion complete (Least Squares Fitting)
 - Calculation performed progressively across an arbitrary number of segments
