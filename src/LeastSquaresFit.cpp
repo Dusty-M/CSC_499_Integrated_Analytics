@@ -13,22 +13,46 @@ template <typename X_type, typename Y_type>
 void runProfile(const index_type num_segments, const CSVParser &csv,
 		const std::string &X_header, const std::string &Y_header,
 		const index_type header_row_index, 	const index_type first_data_row_index) {
+
+	using vec_cols_tX = std::vector<ColumnData<X_type>>;
+	using vec_cols_tY = std::vector<ColumnData<Y_type>>;
+	using time_nano_t = std::chrono::nanoseconds;
+
+	// If num_segments != 1, run the analysis with a single segment (non-progressive)
+	// to obtain the true y-intercept and slope.  Use these values to determine
+	// the error during progressive calculations
+	float_data_type a_actual, b_actual;
+	if(num_segments != 1) {
+		auto Xs = csv.makeSegments<X_type>(X_header, 
+			header_row_index, first_data_row_index, 1);
+		auto Ys = csv.makeSegments<Y_type>(Y_header, 
+			header_row_index, first_data_row_index, 1);
+		auto lsf = makeLeastSquaresFit<vec_cols_tX , vec_cols_tY>(Xs, Ys);
+		lsf.calcNextProjection(); // performs complete calculation
+		a_actual = lsf.getProja();
+		b_actual = lsf.getProjb();
+	}
+
+	// Setup for progressive calculation
 	auto Xs = csv.makeSegments<X_type>(X_header, 
 		header_row_index, first_data_row_index, num_segments);
 	auto Ys = csv.makeSegments<Y_type>(Y_header, 
 		header_row_index, first_data_row_index, num_segments);
-	
-	using vec_cols_tX = std::vector<ColumnData<X_type>>;
-	using vec_cols_tY = std::vector<ColumnData<Y_type>>;
 	auto lsf = makeLeastSquaresFit<vec_cols_tX , vec_cols_tY>(Xs, Ys);
 
-	using time_nano_t = std::chrono::nanoseconds;
-	auto start = std::chrono::system_clock::now();
 	index_type cur_seg {0};
+	auto start = std::chrono::system_clock::now();
 	while(lsf.calcNextProjection()) {
-		std::cout << "a: " << lsf.getProja() << " b: " << lsf.getProjb();
+		auto cur_a_proj = lsf.getProja();
+		auto cur_b_proj = lsf.getProjb();
+		auto cur_a_error = std::abs(cur_a_proj - a_actual);
+		auto cur_b_error = std::abs(cur_b_proj - b_actual);
+
+		std::cout << "a: " << cur_a_proj << ", b: " << cur_a_proj
+			<< ", a error: " << cur_a_error
+			<< ", b error: " << cur_b_error;
 		auto cur {std::chrono::system_clock::now()};
-		std::cout << " Time elapsed on segment " << cur_seg++ << ": "
+		std::cout << ", Time elapsed" << cur_seg++ << ": "
 			<< std::chrono::duration_cast<time_nano_t>(cur - start).count() << std::endl;
 	}
 	auto cur {std::chrono::system_clock::now()};
