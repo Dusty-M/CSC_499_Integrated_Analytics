@@ -5,8 +5,14 @@
 #define LEASTSQUARESFIT_HPP
 #include "CSVParser.hpp"
 
+
 template <typename X_type, typename Y_type>
 class LeastSquaresFit;
+
+template <typename X_type, typename Y_type>
+void runProfile(const index_type num_segments, const CSVParser &csv,
+	const std::string &X_header, const std::string &Y_header,
+	const index_type header_row_index, const index_type first_row_data_index);
 
 // Note: X_type and Y_type are expected to be std::vector<ColumnData<T>>
 // where T is some numeric type such as float, double, unsigned int, etc.

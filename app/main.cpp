@@ -7,6 +7,7 @@
 #include <memory> // shared pointers
 #include <unistd.h> // usleep
 #include <boost/program_options.hpp>
+#include <chrono>
 
 void usage() {
 	std::cout << "Example usage:\n"
@@ -137,7 +138,12 @@ int main( int argc, char **argv ) {
 	constexpr int_data_type usecs {2000000}; // microseconds
 	std::cout << "Displaying projections during progressive analysis:" << std::endl; 
 	while(lsf.calcNextProjection()) {
-		std::cout << '\r' << "a: " << lsf.getProja() << " b: " << lsf.getProjb() << std::flush;
+		auto start = std::chrono::system_clock::now();
+		std::cout << '\r' << "a: " << lsf.getProja() << " b: " << lsf.getProjb();
+		auto end = std::chrono::system_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+
+		std::cout << "elapsed: " << elapsed.count() << std::flush;
 		usleep(usecs);
 	}
 	std::cout << "\nProgram closing" << std::endl;
