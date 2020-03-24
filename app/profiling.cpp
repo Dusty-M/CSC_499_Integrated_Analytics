@@ -11,7 +11,7 @@
 
 void usage() {
 	std::cout << "Example usage:\n"
-		<< "profiling --filename census_2000_all_places_sample_dimensions.csv --X_header SE_T003_001 --Y_header T013_001 --num_segs 5 --header_row_index 1 --first_data_row_index 2\n" << std::endl;
+		<< "profiling --filename census_2000_all_places_sample_dimensions.csv --X_header SE_T003_001 --Y_header SE_T013_001 --num_segs 5 --header_row_index 1 --first_data_row_index 2\n" << std::endl;
 }
 
 int main( int argc, char **argv ) {

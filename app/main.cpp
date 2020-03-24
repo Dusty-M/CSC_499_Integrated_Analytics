@@ -143,7 +143,7 @@ int main( int argc, char **argv ) {
 		auto end = std::chrono::system_clock::now();
 		auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 
-		std::cout << "elapsed: " << elapsed.count() << std::flush;
+		std::cout << " elapsed: " << elapsed.count() << " ns" << std::flush;
 		usleep(usecs);
 	}
 	std::cout << "\nProgram closing" << std::endl;
