@@ -5,8 +5,26 @@
 #define LEASTSQUARESFIT_HPP
 #include "CSVParser.hpp"
 
+
 template <typename X_type, typename Y_type>
 class LeastSquaresFit;
+
+template <typename T>
+struct projection{
+    T a_proj; // represents y-intercept
+    T b_proj; // represents slope
+};
+
+template <typename T>
+projection<T> error( projection<T> const p1, projection<T> const p2);
+
+template <typename T>
+std::ostream &operator << (std::ostream &s, projection<T> const proj);
+
+template <typename X_type, typename Y_type>
+void runProfile(const index_type num_segments, const CSVParser &csv,
+	const std::string &X_header, const std::string &Y_header,
+	const index_type header_row_index, const index_type first_row_data_index);
 
 // Note: X_type and Y_type are expected to be std::vector<ColumnData<T>>
 // where T is some numeric type such as float, double, unsigned int, etc.
@@ -14,7 +32,7 @@ template <typename X_type, typename Y_type>
 class LeastSquaresFit {
 public:
 	template <typename T1, typename T2>
-	friend std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<T1, T2> lsf);
+	friend std::ostream &operator<<(std::ostream &os, const LeastSquaresFit<T1, T2> &lsf);
 
     LeastSquaresFit(X_type X, Y_type Y);
     void init();
