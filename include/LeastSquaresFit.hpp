@@ -9,6 +9,18 @@
 template <typename X_type, typename Y_type>
 class LeastSquaresFit;
 
+template <typename T>
+struct projection{
+    T a_proj; // represents y-intercept
+    T b_proj; // represents slope
+};
+
+template <typename T>
+projection<T> error( projection<T> const p1, projection<T> const p2);
+
+template <typename T>
+std::ostream &operator << (std::ostream &s, projection<T> const proj);
+
 template <typename X_type, typename Y_type>
 void runProfile(const index_type num_segments, const CSVParser &csv,
 	const std::string &X_header, const std::string &Y_header,

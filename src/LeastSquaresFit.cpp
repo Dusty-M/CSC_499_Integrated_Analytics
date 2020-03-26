@@ -5,9 +5,22 @@
 #include <utility> //std::pair
 #include <numeric> // std::inner_product
 #include <chrono>
+#include <memory>
 
 using vec_col_float = std::vector<ColumnData<float_data_type>>;
 using vec_col_int = std::vector<ColumnData<int_data_type>>;
+
+template <typename T>
+projection<T> error( projection<T> const p1, projection<T> const p2) {
+	return projection<T> {	std::abs(p1.a_proj - p2.a_proj), 
+							std::abs(p1.b_proj - p2.b_proj)};
+}
+
+template <typename T>
+std::ostream &operator << (std::ostream &s, projection<T> const proj) 
+{
+	return s << "(" << proj.a_proj << ", " << proj.b_proj << ")";
+}
 
 template <typename X_type, typename Y_type>
 void runProfile(const index_type num_segments, const CSVParser &csv,
@@ -22,8 +35,9 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 	// to obtain the true y-intercept and slope.  Use these values to determine
 	// the error during progressive calculations
 	float_data_type a_actual, b_actual;
-//	if(num_segments != 1) {
-	{
+	std::shared_ptr <projection <float_data_type> > actual;
+
+	{ // scoping lsf
 		auto lsf {makeLeastSquaresFit<vec_cols_tX, vec_cols_tY>(
 			csv.makeSegments<X_type>(
 				X_header,
@@ -38,8 +52,10 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 		lsf.calcNextProjection(); // performs complete calculation
 		a_actual = lsf.getProja();
 		b_actual = lsf.getProjb();
+
+		actual = std::make_shared<projection<float_data_type> > 
+			(projection<float_data_type> {lsf.getProja(), lsf.getProjb()});
 	}
-//	}
 
 	// Setup for progressive calculation
 	auto Xs {csv.makeSegments<X_type>(X_header, 
@@ -51,14 +67,8 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 	index_type cur_seg {0};
 	auto start {std::chrono::system_clock::now()};
 	while(lsf.calcNextProjection()) {
-		auto cur_a_proj {lsf.getProja()};
-		auto cur_b_proj {lsf.getProjb()};
-		auto cur_a_error {std::abs(cur_a_proj - a_actual)};
-		auto cur_b_error {std::abs(cur_b_proj - b_actual)};
-
-		std::cout << "a: " << cur_a_proj << ", b: " << cur_a_proj
-			<< ", a error: " << cur_a_error
-			<< ", b error: " << cur_b_error;
+		projection<float_data_type> cur_proj {lsf.getProja(), lsf.getProjb()};
+		std::cout << "Error: " << error(*actual, cur_proj);
 		auto cur {std::chrono::system_clock::now()};
 		std::cout << ", segment: " << cur_seg++ << ", Time elapsed" << ": "
 			<< std::chrono::duration_cast<time_nano_t>(cur - start).count() << " ns" << std::endl;
