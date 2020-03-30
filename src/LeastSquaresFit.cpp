@@ -34,7 +34,7 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 	// If num_segments != 1, run the analysis with a single segment (non-progressive)
 	// to obtain the true y-intercept and slope.  Use these values to determine
 	// the error during progressive calculations
-	float_data_type a_actual, b_actual;
+//	float_data_type a_actual, b_actual;
 	std::shared_ptr <projection <float_data_type> > actual;
 
 	{ // scoping lsf
@@ -50,8 +50,8 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 				first_data_row_index, 
 				1))};
 		lsf.calcNextProjection(); // performs complete calculation
-		a_actual = lsf.getProja();
-		b_actual = lsf.getProjb();
+//		a_actual = lsf.getProja();
+//		b_actual = lsf.getProjb();
 
 		actual = std::make_shared<projection<float_data_type> > 
 			(projection<float_data_type> {lsf.getProja(), lsf.getProjb()});
@@ -85,7 +85,7 @@ template void runProfile<float_data_type, float_data_type>(
 
 template <typename X_type, typename Y_type> 
 LeastSquaresFit<X_type, Y_type>::LeastSquaresFit(X_type X, Y_type Y): 
-    	_x_bar {0}, _y_bar {0}, _X {X}, _Y {Y}, 
+    	_X {X}, _Y {Y},_x_bar {0}, _y_bar {0},
 		_SS_xx {0}, _SS_xy {0}, _a {0}, _b {0},
 		_count {0} {} 
 template class LeastSquaresFit<vec_col_int, vec_col_int>; 

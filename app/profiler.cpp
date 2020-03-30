@@ -1,4 +1,4 @@
-// profiling.cpp
+// profiler.cpp
 // Used to write exploratory/behavioural tests for CSVParser
 
 #include "CSVParser.hpp"

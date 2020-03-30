@@ -64,13 +64,6 @@ public:
 	void preprocess(ColumnData<T> &cd) const;
 
 	template <typename T>
-	void runAnalysis(	
-		ColumnData<T> &cd,
-		const std::string &target_header, 
-		const index_type header_index, 
-		const index_type first_data_row_index) const;
-
-	template <typename T>
 	void runAnalysisSegment(
 		ColumnData<T> &cd) const;
 private:
