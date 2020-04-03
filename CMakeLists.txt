@@ -27,5 +27,6 @@ target_link_libraries(profiler PUBLIC Boost::program_options)
 
 add_executable(unit_tests app/unit_tests.cpp src/CSVParser.cpp src/LeastSquaresFit.cpp)
 
-target_link_libraries(profiler PUBLIC atlas::atlas)
+add_executable(make_plot app/make_plot.cpp src/CSVParser.cpp src/LeastSquaresFit.cpp)
+target_link_libraries(make_plot PUBLIC atlas::atlas)
 
