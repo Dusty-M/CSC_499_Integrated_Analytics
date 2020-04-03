@@ -2,10 +2,14 @@
 # Integrated Progressive Analytics
 
 ## Sample Usage:
-### To display results of progressive analysis run the following command from the same directory README.md is located (Note: there is a 2 second delay between each progression to allow the user to read the printout):
+
+To display results of progressive analysis run the following command from the same directory README.md is located (Note: there is a 2 second delay between each progression to allow the user to read the printout):  
+
 `$ bin/CSVParser_tester --filename census_2000_all_places_sample_dimensions.csv`  
 `--header SE_T001_001 --header_row_index 1 --first_data_row_index 2`
-### To display runtime of analysis of n segments run the following command from the same directory README.md is located:
+
+To display runtime of analysis of n segments run the following command from the same directory README.md is located:  
+
 `$ bin/profiler --filename census_2000_all_places_sample_dimensions.csv`  
 `--X_header SE_T003_001 --Y_header SE_T013_001 --num_segs 5 --header_row_index 1 --first_data_row_index 2`
 
