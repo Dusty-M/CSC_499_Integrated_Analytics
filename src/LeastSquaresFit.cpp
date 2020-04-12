@@ -10,14 +10,12 @@
 using vec_col_float = std::vector<ColumnData<float_data_type>>;
 using vec_col_int = std::vector<ColumnData<int_data_type>>;
 
-template <typename T>
-projection<T> error( projection<T> const p1, projection<T> const p2) {
-	return projection<T> {	std::abs(p1.a_proj - p2.a_proj), 
-							std::abs(p1.b_proj - p2.b_proj)};
+projection error( projection const p1, projection const p2) {
+	return projection {	std::abs(p1.a_proj - p2.a_proj), 
+						std::abs(p1.b_proj - p2.b_proj)};
 }
 
-template <typename T>
-std::ostream &operator << (std::ostream &s, projection<T> const proj) 
+std::ostream &operator << (std::ostream &s, projection const proj) 
 {
 	return s << "(" << proj.a_proj << ", " << proj.b_proj << ")";
 }
@@ -35,7 +33,7 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 	// to obtain the true y-intercept and slope.  Use these values to determine
 	// the error during progressive calculations
 //	float_data_type a_actual, b_actual;
-	std::shared_ptr <projection <float_data_type> > actual;
+	std::shared_ptr <projection> actual;
 
 	{ // scoping lsf
 		auto lsf {makeLeastSquaresFit<vec_cols_tX, vec_cols_tY>(
@@ -53,8 +51,8 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 //		a_actual = lsf.getProja();
 //		b_actual = lsf.getProjb();
 
-		actual = std::make_shared<projection<float_data_type> > 
-			(projection<float_data_type> {lsf.getProja(), lsf.getProjb()});
+		actual = std::make_shared<projection> 
+			(projection {lsf.getProja(), lsf.getProjb()});
 	}
 
 	// Setup for progressive calculation
@@ -67,7 +65,7 @@ void runProfile(const index_type num_segments, const CSVParser &csv,
 	index_type cur_seg {0};
 	auto start {std::chrono::system_clock::now()};
 	while(lsf.calcNextProjection()) {
-		projection<float_data_type> cur_proj {lsf.getProja(), lsf.getProjb()};
+		projection cur_proj {lsf.getProja(), lsf.getProjb()};
 		std::cout << "Error: " << error(*actual, cur_proj);
 		auto cur {std::chrono::system_clock::now()};
 		std::cout << ", segment: " << cur_seg++ << ", Time elapsed" << ": "

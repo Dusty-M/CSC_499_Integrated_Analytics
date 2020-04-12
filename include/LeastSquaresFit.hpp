@@ -9,17 +9,30 @@
 template <typename X_type, typename Y_type>
 class LeastSquaresFit;
 
+
+/*
+// a summary is a complete accounting of a progressive
+// analysis, including a projection, a set of representative
+// data points, the number of segments processed so far,
+// and intermediate values SS_xx, SS_xy, x_bar, y_bar
 template <typename T>
+struct summary{
+};
+*/
+
+// a projection is the best guess with current data of the line of best fit
+//template <typename T>
 struct projection{
-    T a_proj; // represents y-intercept
-    T b_proj; // represents slope
+    float_data_type a_proj; // represents y-intercept
+    float_data_type b_proj; // represents slope
 };
 
-template <typename T>
-projection<T> error( projection<T> const p1, projection<T> const p2);
+//template <typename T>
+//projection error( projection<T> const p1, projection<T> const p2);
+projection error( projection const p1, projection const p2);
 
 template <typename T>
-std::ostream &operator << (std::ostream &s, projection<T> const proj);
+std::ostream &operator << (std::ostream &s, projection const proj);
 
 template <typename X_type, typename Y_type>
 void runProfile(const index_type num_segments, const CSVParser &csv,
