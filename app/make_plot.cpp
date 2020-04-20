@@ -18,7 +18,9 @@ int main(int argc, char **argv) {
 
     // program arg variables
     std::string     filename;
-    std::string     header;
+    std::string     X_header;
+    std::string     Y_header;
+	index_type		num_segments;
     index_type header_row_index;
     index_type  first_data_row_index;
 
@@ -29,8 +31,12 @@ int main(int argc, char **argv) {
         ("help", "Print help messages")
         ("filename", po::value<std::string>(&filename)->required(),
             "CSV filename including file extension")
-        ("header", po::value<std::string>(&header)->required(),
+        ("X_header", po::value<std::string>(&X_header)->required(),
             "unique header of column")
+        ("Y_header", po::value<std::string>(&Y_header)->required(),
+            "unique header of column")
+        ("num_segs", po::value<index_type>(&num_segments)->required(),
+            "number of segments in analysis")
         ("header_row_index", po::value<index_type>(&header_row_index)->required(),
             "index of row header is located on")
         ("first_data_row_index", po::value<index_type>(&first_data_row_index)->required(),
@@ -64,11 +70,30 @@ int main(int argc, char **argv) {
     // ********* end of boost::program_options code ****************
 
 	// Create CSVParser
-
+		constexpr unsigned char DELIM {','};
+	std::shared_ptr<CSVParser> csvp;
+	try {
+		csvp = std::make_shared<CSVParser> (makeCSVParser(filename, DELIM));
+	} catch(const std::runtime_error &e) {
+		std::cout << e.what() << std::endl;
+		return 2;
+	}
 	// Create LeastSquaresFit object
+	using vec_cols_tX = std::vector<ColumnData<float_data_type>>;
+	using vec_cols_tY = std::vector<ColumnData<float_data_type>>;
+
+	auto Xs {csvp->makeSegments<float_data_type>(X_header,
+		header_row_index, first_data_row_index, num_segments)};
+	auto Ys {csvp->makeSegments<float_data_type>(Y_header,
+		header_row_index, first_data_row_index, num_segments)};
+	auto lsf {makeLeastSquaresFit<vec_cols_tX, vec_cols_tY>(Xs, Ys)};
 
 	// for each segment, process ColumnData into a summary
 	// and combine with previous summary, then plot summary info
+
+	auto cur_seg {lsf.getNextSegment()};
+	auto summary_aggregated {create_summary(cur_seg)};
+
 	using flt_summary_type = summary<float_data_type, float_data_type>;
 	flt_summary_type s1 {
 		projection {1.0, 1.0},
@@ -94,7 +119,8 @@ int main(int argc, char **argv) {
 	SummaryPlotter plotter{};
 	std::string settings {"set style fill solid 0.1\n"};
 	plotter.set_settings(settings);
-	plotter(tmp_summary);
+//	plotter(tmp_summary);
+	plotter(summary_aggregated);
 	/*
 	Gnuplot gp;
 

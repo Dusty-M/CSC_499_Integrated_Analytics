@@ -23,10 +23,13 @@ struct point {
 
 template<typename X_DataCol_type, typename Y_DataCol_type>
 struct segment {
-	segment(X_DataCol_type X_arg, Y_DataCol_type Y_arg): 
-		X {X_arg}, Y {Y_arg}{}
+	segment(X_DataCol_type X_arg, Y_DataCol_type Y_arg, 
+		float_data_type x_bar_arg, float_data_type y_bar_arg): 
+		X {X_arg}, Y {Y_arg}, x_bar {x_bar_arg}, y_bar {y_bar_arg}{}
 	X_DataCol_type X;
 	Y_DataCol_type Y;
+	float_data_type x_bar;
+	float_data_type y_bar;
 };
 
 
@@ -112,8 +115,11 @@ LeastSquaresFit<X_type, Y_type> makeLeastSquaresFit(X_type X, Y_type Y);
 // Overloaded function create_summary. 
 // - provide 2 summaries as arguments and it will return a summary OR
 // - provide raw data as an argument and it will return a summary
+
 template <typename X_type, typename Y_type>
-summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type> Y);
+//summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type> Y);
+summary<X_type, Y_type> create_summary(segment<ColumnData<X_type>, ColumnData<Y_type>> seg);
+
 
 template <typename X_type, typename Y_type>
 summary<X_type, Y_type> create_summary(summary<X_type, Y_type> s1, summary<X_type, Y_type> s2);

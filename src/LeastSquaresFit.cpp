@@ -223,13 +223,14 @@ template LeastSquaresFit<vec_col_float, vec_col_float>
 	makeLeastSquaresFit(vec_col_float X, vec_col_float Y);
 
 template <typename X_type, typename Y_type> // X_type/Y_type are std::vector<Columndata<T>>
-segment<typename X_type::value_type, typename Y_type::value_type> LeastSquaresFit<X_type, Y_type>::getNextSegment() 
+segment<typename X_type::value_type, typename Y_type::value_type> 
+	LeastSquaresFit<X_type, Y_type>::getNextSegment() 
 {
 	
 	auto X = _X.at(_count);
 	auto Y = _Y.at(_count);
 	++_count;
-	return segment {X, Y};
+	return segment {X, Y, _x_bar, _y_bar};
 };
 template segment <typename vec_col_float::value_type, typename vec_col_float::value_type >
 	LeastSquaresFit<vec_col_float, vec_col_float>::getNextSegment();
@@ -291,8 +292,11 @@ template std::ostream &operator<<(std::ostream &os,
 	const LeastSquaresFit<vec_col_float, vec_col_float> &lsf);
 
 template <typename X_type, typename Y_type>
-summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type> Y)
+//summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type> Y)
+summary<X_type, Y_type> create_summary(segment<ColumnData<X_type>, ColumnData<Y_type>> seg)
+
 {
+	std::cout << "in create_summary(seg)" << std::endl;
 	/***************************************
 	return summary<X_type, Y_type {
 		// projection
@@ -304,10 +308,66 @@ summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type
 		// index_type count
 	};
 	***************************************/
-	return summary<X_type, Y_type> {}; // temp, replace with real thing
+
+	summary<X_type, Y_type> cur_summary;
+
+	// transfer x_bar, y_bar from seg to summary
+	cur_summary.x_bar = seg.x_bar;
+	cur_summary.y_bar = seg.y_bar;
+
+	// Since this summary is being created by a segment of data directly
+	// the count will always be 1
+	cur_summary.count = 1;
+
+	// calculate SS_xx, SS_xy
+	
+	float_data_type init_SS_xx {-(seg.X.data_raw.size() * seg.x_bar * seg.x_bar)};
+	float_data_type init_SS_xy {-(seg.Y.data_raw.size() * seg.x_bar * seg.y_bar)};
+	float_data_type cur_SS_xx {std::inner_product(seg.X.data_raw.begin(), seg.X.data_raw.end(), 
+		seg.X.data_raw.begin(), init_SS_xx)};
+	float_data_type cur_SS_xy {std::inner_product(seg.X.data_raw.begin(), seg.X.data_raw.end(), 
+		seg.Y.data_raw.begin(), init_SS_xy)};
+
+	// calculate projection
+		
+	float_data_type cur_b_proj {cur_SS_xy / cur_SS_xx};
+	float_data_type cur_a_proj {seg.y_bar - cur_b_proj * seg.x_bar};
+	cur_summary.proj = projection{cur_a_proj, cur_b_proj};
+
+	// calculate representative points
+	// first, build vector of points
+	std::vector<point<X_type, Y_type>> all_points;
+	for(index_type i {0}; i < seg.X.data_raw.size(); ++i) {
+		auto cur_x = seg.X.data_raw.at(i);
+		auto cur_y = seg.Y.data_raw.at(i);
+		all_points.push_back(point<X_type, Y_type> {cur_x, cur_y});
+	}
+
+	// create lambda used to evaluate current projection
+	auto f_proj {[&cur_summary](X_type x_i)
+		{return cur_summary.proj.a_proj + x_i * cur_summary.proj.b_proj;}};
+	
+	auto compare {[&f_proj](point<X_type, Y_type> p1, point<X_type, Y_type> p2) {
+		float_data_type error_p1, error_p2;
+		error_p1 = std::abs(f_proj(p1.x) - p1.y);
+		error_p2 = std::abs(f_proj(p2.x) - p2.y);
+		return error_p1 < error_p2;}
+	};
+
+	// sort points;
+	std::sort(all_points.begin(), all_points.end(), compare);
+
+	const float_data_type TARGET_ERROR {0.0};
+//	std::vector < point <float_data_type, float_data_type > > cur_rep_points = 
+//		get_points(10, TARGET_ERROR, all_points, f_proj);
+	cur_summary.representative_pts = get_points(10, TARGET_ERROR, all_points, f_proj);
+
+	return cur_summary;
+//	return summary<X_type, Y_type> {}; // temp, replace with real thing
 }
-template summary<float_data_type, float_data_type> create_summary
-	(std::vector<float_data_type> X, std::vector<float_data_type> Y);
+template summary<float_data_type, float_data_type> create_summary<float_data_type, float_data_type>
+//	(std::vector<float_data_type> X, std::vector<float_data_type> Y);
+	(segment<ColumnData<float_data_type>, ColumnData<float_data_type>> seg);
 
 template <typename X_type, typename Y_type>
 summary<X_type, Y_type> create_summary(
