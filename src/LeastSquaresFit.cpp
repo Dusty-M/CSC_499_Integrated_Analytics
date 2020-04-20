@@ -292,23 +292,9 @@ template std::ostream &operator<<(std::ostream &os,
 	const LeastSquaresFit<vec_col_float, vec_col_float> &lsf);
 
 template <typename X_type, typename Y_type>
-//summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type> Y)
 summary<X_type, Y_type> create_summary(segment<ColumnData<X_type>, ColumnData<Y_type>> seg)
 
 {
-	std::cout << "in create_summary(seg)" << std::endl;
-	/***************************************
-	return summary<X_type, Y_type {
-		// projection
-		// representative_pts
-		// SS_xx
-		// SS_xy
-		// x_bar
-		// y_bar
-		// index_type count
-	};
-	***************************************/
-
 	summary<X_type, Y_type> cur_summary;
 
 	// transfer x_bar, y_bar from seg to summary
@@ -358,15 +344,11 @@ summary<X_type, Y_type> create_summary(segment<ColumnData<X_type>, ColumnData<Y_
 	std::sort(all_points.begin(), all_points.end(), compare);
 
 	const float_data_type TARGET_ERROR {0.0};
-//	std::vector < point <float_data_type, float_data_type > > cur_rep_points = 
-//		get_points(10, TARGET_ERROR, all_points, f_proj);
 	cur_summary.representative_pts = get_points(10, TARGET_ERROR, all_points, f_proj);
 
 	return cur_summary;
-//	return summary<X_type, Y_type> {}; // temp, replace with real thing
 }
 template summary<float_data_type, float_data_type> create_summary<float_data_type, float_data_type>
-//	(std::vector<float_data_type> X, std::vector<float_data_type> Y);
 	(segment<ColumnData<float_data_type>, ColumnData<float_data_type>> seg);
 
 template <typename X_type, typename Y_type>
@@ -467,29 +449,6 @@ summary<X_type, Y_type> create_summary(
 				cur_x_bar,				// x_bar
 				cur_y_bar,				// y_bar
 				s1.count + s2.count};	// count
-/*
-	std::cout << "A" << std::endl;
-	std::vector< point< X_type, Y_type> > tmp_pts {
-		point<X_type, Y_type>{1.0, 1.0},
-		point<X_type, Y_type>{2.0, 3.0},
-		point<X_type, Y_type>{4.0, 1.0}};
-
-	std::cout << "B" << std::endl;
-
-	summary<X_type, Y_type> tmp_sum{
-		projection{2.0, 0.5}, // y = 2.0 + 0.5x
-		tmp_pts,
-		0.0, // SS_xx
-		0.0, // SS_xy
-		0.0, // x_bar
-		0.0, // y_bar
-		0};  // count
-	tmp_sum.SS_xx = s1.SS_xx + s2.SS_xx;
-	tmp_sum.SS_xy = s1.SS_xy + s2.SS_xy;
-	tmp_sum.count = s1.count + s2.count;
-	std::cout << "C" << std::endl;
-	return tmp_sum;
-*/
 }
 using float_summary_type = summary<float_data_type, float_data_type>;
 template float_summary_type create_summary<float_data_type, float_data_type>
