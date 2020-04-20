@@ -17,6 +17,7 @@ class CSVParser;
 // based on the amount of data found in the CSVParser
 template <typename T>
 struct ColumnData {
+	using value_type = T;
 	std::string header;
 	index_type first_data_row_index;
 	index_type header_row_index;
