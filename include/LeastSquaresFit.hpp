@@ -4,22 +4,65 @@
 #ifndef LEASTSQUARESFIT_HPP
 #define LEASTSQUARESFIT_HPP
 #include "CSVParser.hpp"
-
+#include <functional>
 
 template <typename X_type, typename Y_type>
 class LeastSquaresFit;
 
-template <typename T>
+// a projection is the best guess with current data of the line of best fit
 struct projection{
-    T a_proj; // represents y-intercept
-    T b_proj; // represents slope
+    float_data_type a_proj; // represents y-intercept
+    float_data_type b_proj; // represents slope
 };
 
-template <typename T>
-projection<T> error( projection<T> const p1, projection<T> const p2);
+template<typename X_type, typename Y_type>
+struct point {
+	X_type x;
+	Y_type y;
+};
+
+template<typename X_DataCol_type, typename Y_DataCol_type>
+struct segment {
+	segment(X_DataCol_type X_arg, Y_DataCol_type Y_arg, 
+		float_data_type x_bar_arg, float_data_type y_bar_arg): 
+		X {X_arg}, Y {Y_arg}, x_bar {x_bar_arg}, y_bar {y_bar_arg}{}
+	X_DataCol_type X;
+	Y_DataCol_type Y;
+	float_data_type x_bar;
+	float_data_type y_bar;
+};
+
+
+template<typename X_type, typename Y_type>
+std::ostream &operator<<(std::ostream &os, const point<X_type, Y_type> &pt);
+
+// a summary is a complete accounting of a progressive
+// analysis, including a projection, a set of representative
+// data points, the number of segments processed so far,
+// and intermediate values SS_xx, SS_xy, x_bar, y_bar
+template <typename X_type, typename Y_type>
+struct summary{
+	projection proj;
+	std::vector< point< X_type, Y_type > > representative_pts;
+	float_data_type 	SS_xx, 
+						SS_xy, 
+						x_bar, 
+						y_bar;
+	index_type count; // represents number of segments aggregated thus far
+};
+
+template <typename X_type, typename Y_type>
+std::ostream &operator<<(std::ostream &os, const summary<X_type, Y_type> &sum);
+
+projection error(projection const p1, projection const p2);
 
 template <typename T>
-std::ostream &operator << (std::ostream &s, projection<T> const proj);
+std::ostream &operator << (std::ostream &s, projection const proj);
+
+template <typename Point_type>
+std::vector<Point_type> get_points(const index_type n, const float_data_type dy,
+		const std::vector<Point_type> &all_points,
+		const std::function<float_data_type(float_data_type)> &&f_x);
 
 template <typename X_type, typename Y_type>
 void runProfile(const index_type num_segments, const CSVParser &csv,
@@ -36,7 +79,13 @@ public:
 
     LeastSquaresFit(X_type X, Y_type Y);
     void init();
-	bool calcNextProjection();
+	// NOTE: either use calcNextProjection or use getNextSegment.  
+	// DO NOT MIX USAGE for a given calculation
+	// TODO: remove calcNextProjection interface.  Rely only on getNextSegment.
+	// Rationale: 	- calcNextProjection was designed to be used in sequential calculation
+	// 				- getNextSegment can be used for concurrent calculation
+	segment<typename X_type::value_type, typename Y_type::value_type> getNextSegment();
+	bool calcNextProjection(); 
 	float_data_type getProja();
 	float_data_type getProjb();
 
@@ -62,5 +111,17 @@ private:
 // of type std::vector<ColumnData<T>> where T is a numeric type
 template <typename X_type, typename Y_type>
 LeastSquaresFit<X_type, Y_type> makeLeastSquaresFit(X_type X, Y_type Y);
+
+// Overloaded function create_summary. 
+// - provide 2 summaries as arguments and it will return a summary OR
+// - provide raw data as an argument and it will return a summary
+
+template <typename X_type, typename Y_type>
+//summary<X_type, Y_type> create_summary(std::vector<X_type> X, std::vector<Y_type> Y);
+summary<X_type, Y_type> create_summary(segment<ColumnData<X_type>, ColumnData<Y_type>> seg);
+
+
+template <typename X_type, typename Y_type>
+summary<X_type, Y_type> create_summary(summary<X_type, Y_type> s1, summary<X_type, Y_type> s2);
 
 #endif

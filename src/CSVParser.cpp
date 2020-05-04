@@ -203,36 +203,6 @@ template void CSVParser::preprocess(
 template void CSVParser::preprocess(
 		ColumnData<float_data_type> &cd) const;
 
-
-// runAnalysis() will do the complete aggregation in one session
-// In contrast, runAnalysisSegment() is used to
-// aggregate just one segment of the data
-template <typename T>
-void CSVParser::runAnalysis(
-		ColumnData<T> &cd,
-		const std::string &target_header, 
-		const index_type header_row_index,
-		const index_type first_data_row_index) const {
-	int_data_type sum {0};
-	for(index_type cur_row {first_data_row_index}; cur_row < _rows.size(); ++cur_row) {
-		sum += std::stoull(_rows.at(cur_row).at(cd.header_col_index));
-	}
-	cd.data_summary_actual = sum;
-	cd.data_summary_projected = sum;
-}
-// Currently depricated, will remove soon...
-template void CSVParser::runAnalysis(
-		ColumnData<int_data_type> &cd,
-		const std::string &target_header,
-		const index_type header_row_index,
-		const index_type first_data_row_index) const;
-template void CSVParser::runAnalysis(
-		ColumnData<float_data_type> &cd,
-		const std::string &target_header,
-		const index_type header_row_index,
-		const index_type first_data_row_index) const;
-
-
 template <typename T>
 void CSVParser::runAnalysisSegment(	ColumnData<T> &cd ) const
 {

@@ -1,6 +1,5 @@
-rm bin/CSVParser_tester bin/unit_tests bin/profiling
-cmake -H. -Bbin 
-cmake --build bin 
-# bin/CSVParser_tester census_2000_sample_places_sample_dimensions.csv SE_T001_001 1 2
+rm bin/CSVParser_tester bin/unit_tests bin/profiler bin/make_plot
+cmake -H. -Bbin -DATLAS_BUILD_EXAMPLES=OFF
+cmake --build bin
 bin/unit_tests
 

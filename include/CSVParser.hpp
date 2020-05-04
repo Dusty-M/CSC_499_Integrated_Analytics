@@ -17,6 +17,7 @@ class CSVParser;
 // based on the amount of data found in the CSVParser
 template <typename T>
 struct ColumnData {
+	using value_type = T;
 	std::string header;
 	index_type first_data_row_index;
 	index_type header_row_index;
@@ -62,13 +63,6 @@ public:
 
 	template <typename T>
 	void preprocess(ColumnData<T> &cd) const;
-
-	template <typename T>
-	void runAnalysis(	
-		ColumnData<T> &cd,
-		const std::string &target_header, 
-		const index_type header_index, 
-		const index_type first_data_row_index) const;
 
 	template <typename T>
 	void runAnalysisSegment(
